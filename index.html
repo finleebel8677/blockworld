@@ -13,7 +13,31 @@
 #cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;pointer-events:none}#cross:before,#cross:after{content:"";position:absolute;background:white}#cross:before{left:6px;height:14px;width:2px}#cross:after{top:6px;width:14px;height:2px}
 #inventory{display:none;position:fixed;z-index:5;inset:7% 4%;padding:14px;overflow:auto}#inventorygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:7px}.item{padding:9px;background:#273943;border-radius:9px;text-align:center;font-size:12px}
 #start{position:fixed;z-index:9;inset:0;display:grid;place-items:center;padding:20px;background:linear-gradient(#10202acc,#101a22ee)}#start section{max-width:420px;padding:24px;text-align:center}#start h1{letter-spacing:5px;color:#e7d2a0;font-size:32px}#toast{position:fixed;display:none;top:48%;left:50%;transform:translate(-50%,-50%);background:#101a22ed;padding:10px 15px;border-radius:10px;z-index:8}
-</style></head><body><div id="game"></div>
+
+/* Landscape-first mobile layout */
+#rotate{display:none;position:fixed;z-index:20;inset:0;background:#101a22;align-items:center;justify-content:center;text-align:center;padding:28px}
+#rotate section{max-width:340px}
+#rotate .phone{font-size:58px;display:block;margin-bottom:12px;animation:turnphone 1.8s ease-in-out infinite}
+@keyframes turnphone{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
+@media (orientation:portrait) and (max-width:900px) and (pointer:coarse){
+  #rotate{display:flex}
+}
+@media (orientation:landscape) and (max-height:600px){
+  #top{top:max(env(safe-area-inset-top),4px);left:max(env(safe-area-inset-left),6px);right:max(env(safe-area-inset-right),6px);align-items:flex-start}
+  #top>*{padding:5px}
+  #stats{font-size:10px;min-width:112px}
+  .meter{width:58px;height:6px}
+  #info{font-size:9px;line-height:1.25}
+  #buttons button{padding:6px;font-size:11px}
+  #hotbar{bottom:max(env(safe-area-inset-bottom),4px);gap:2px;padding:3px}
+  .slot{width:clamp(32px,5.4vw,43px);height:38px;font-size:9px}
+  .slot b{font-size:15px}
+  #joy{left:max(env(safe-area-inset-left),12px);bottom:calc(max(env(safe-area-inset-bottom),4px) + 50px);width:104px;height:104px}
+  #stick{left:30px;top:30px;width:42px;height:42px}
+  #tip{right:max(env(safe-area-inset-right),10px);bottom:calc(max(env(safe-area-inset-bottom),4px) + 52px);font-size:9px}
+  #inventory{inset:4% 8%;padding:10px}
+}
+</style></head><body><div id="game"></div><div id="rotate"><section class="panel"><span class="phone">📱</span><h2>TURN YOUR PHONE SIDEWAYS</h2><p>BLOCKWORLD is designed to be played horizontally. Rotate your iPhone to landscape to enter your world.</p></section></div>
 <div id="top"><div id="stats" class="panel">❤ <span class="meter"><span id="hp" class="fill"></span></span> <span id="hpt">100</span><br>🍗 <span class="meter"><span id="food" class="fill food"></span></span> <span id="foodt">100</span></div><div id="info" class="panel"><b>BLOCKWORLD</b><br><span id="time">Day 1 · 08:00</span><br><span id="coords">X 0 · Z 0</span></div><div id="buttons" class="panel"><button id="ib">Bag</button><button id="sb">Save</button></div></div>
 <div id="cross"></div><div id="joy"><div id="stick"></div></div><div id="tip">Drag here to look<br>Hold to mine · Tap to place</div><div id="hotbar" class="panel"></div>
 <div id="inventory" class="panel"><div style="display:flex;justify-content:space-between"><h3>Inventory & crafting</h3><button id="close">Close ✕</button></div><div id="craft"></div><div id="inventorygrid"></div></div><div id="toast"></div>
