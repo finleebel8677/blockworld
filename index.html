@@ -37,6 +37,14 @@
   #tip{right:max(env(safe-area-inset-right),10px);bottom:calc(max(env(safe-area-inset-bottom),4px) + 52px);font-size:9px}
   #inventory{inset:4% 8%;padding:10px}
 }
+
+/* Prevent iOS Safari long-press selection and Look Up/Copy callouts */
+html,body,#game,#game canvas,#top,#hotbar,#joy,#tip,#cross,#inventory,#start,#toast,button,.panel,.slot,.item{
+  -webkit-user-select:none!important;user-select:none!important;
+  -webkit-touch-callout:none!important;
+  -webkit-tap-highlight-color:transparent;
+}
+input,textarea{ -webkit-user-select:text; user-select:text; }
 </style></head><body><div id="game"></div><div id="rotate"><section class="panel"><span class="phone">📱</span><h2>TURN YOUR PHONE SIDEWAYS</h2><p>BLOCKWORLD is designed to be played horizontally. Rotate your iPhone to landscape to enter your world.</p></section></div>
 <div id="top"><div id="stats" class="panel">❤ <span class="meter"><span id="hp" class="fill"></span></span> <span id="hpt">100</span><br>🍗 <span class="meter"><span id="food" class="fill food"></span></span> <span id="foodt">100</span></div><div id="info" class="panel"><b>BLOCKWORLD</b><br><span id="time">Day 1 · 08:00</span><br><span id="coords">X 0 · Z 0</span></div><div id="buttons" class="panel"><button id="ib">Bag</button><button id="sb">Save</button></div></div>
 <div id="cross"></div><div id="joy"><div id="stick"></div></div><div id="tip">Drag here to look<br>Hold to mine · Tap to place</div><div id="hotbar" class="panel"></div>
@@ -73,4 +81,9 @@ renderer.domElement.addEventListener('pointerup',end);renderer.domElement.addEve
 $('play').onclick=()=>{$('start').style.display='none';if(document.documentElement.requestFullscreen&&innerWidth>innerHeight)document.documentElement.requestFullscreen().catch(()=>{});toast('Welcome to the wilderness')};
 let last=performance.now(),tick=0;function animate(now){requestAnimationFrame(animate);let dt=Math.min(.04,(now-last)/1000);last=now;if(!p.paused&&$('start').style.display==='none'&&$('inventory').style.display!=='block'){let f=new THREE.Vector3(-Math.sin(p.yaw),0,-Math.cos(p.yaw)),r=new THREE.Vector3(Math.cos(p.yaw),0,-Math.sin(p.yaw));let v=f.multiplyScalar(-move.z).add(r.multiplyScalar(move.x));if(v.length()>1)v.normalize();p.x+=v.x*4.8*dt;p.z+=v.z*4.8*dt;p.y+=(height(Math.round(p.x),Math.round(p.z))+2.2-p.y)*Math.min(1,dt*8);camera.position.set(p.x,p.y,p.z);camera.lookAt(camera.position.clone().add(new THREE.Vector3(-Math.sin(p.yaw)*Math.cos(p.pitch),Math.sin(p.pitch),-Math.cos(p.yaw)*Math.cos(p.pitch))));p.mins+=dt*2.2;if(p.mins>=1440){p.mins-=1440;p.day++}let phase=p.mins/1440*Math.PI*2-Math.PI/2,lit=Math.max(.12,(Math.sin(phase)+1)/2);sun.position.set(-25*Math.cos(phase),8+34*lit,20);sun.intensity=.25+2.1*lit;scene.background.setHSL(.56,.35,.18+.42*lit);scene.fog.color.copy(scene.background);p.food=Math.max(0,p.food-dt*.025);if(!p.food)p.hp=Math.max(0,p.hp-dt*.15);if(++tick>30){tick=0;bars()}}renderer.render(scene,camera)}requestAnimationFrame(animate);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+// iOS Safari: suppress the native long-press context menu and selection UI
+for(const eventName of ['contextmenu','selectstart','gesturestart']){
+ document.addEventListener(eventName,e=>e.preventDefault(),{passive:false});
+}
 </script></body></html>
