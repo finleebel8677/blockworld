@@ -118,7 +118,8 @@ $('multiplayerbtn').onclick=()=>{$('multiplayer').style.display='block';netStatu
 $('closemulti').onclick=()=>$('multiplayer').style.display='none';
 $('hostroom').onclick=async()=>{try{if(peer)peer.destroy();netStatus('Starting room…');const {Peer}=await import('https://cdn.jsdelivr.net/npm/peerjs@1.5.4/+esm');peer=new Peer();peer.on('open',id=>{$('roomcode').textContent=id;netStatus('Room ready. Share this code with your friend.')});peer.on('connection',c=>connectRoom(c,true));peer.on('error',e=>netStatus('Network error: '+e.type))}catch(e){netStatus('Could not start. Check your internet connection.')}};
 $('joinroom').onclick=async()=>{let code=$('joincode').value.trim();if(!code)return netStatus('Enter the host room code');try{if(peer)peer.destroy();netStatus('Joining room…');const {Peer}=await import('https://cdn.jsdelivr.net/npm/peerjs@1.5.4/+esm');peer=new Peer();peer.on('open',()=>connectRoom(peer.connect(code,{reliable:true}),false));peer.on('error',e=>netStatus('Network error: '+e.type))}catch(e){netStatus('Could not join. Check the room code.')}};
-\n// iOS Safari: suppress the native long-press context menu and selection UI
+
+// iOS Safari: suppress the native long-press context menu and selection UI
 for(const eventName of ['contextmenu','selectstart','gesturestart']){
  document.addEventListener(eventName,e=>e.preventDefault(),{passive:false});
 }
