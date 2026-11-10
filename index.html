@@ -108,10 +108,10 @@ function buildDeepCave(cx,cz,owned=null,spawnMob=false){
    put(cx+dx,-14,cz+dz,'bedrock');
    put(cx+dx,-12,cz+dz,'stone');
    if(Math.abs(dx)===5||Math.abs(dz)===5)for(let y=-11;y<=-8;y++)put(cx+dx,y,cz+dz,'stone');
-   else put(cx+dx,-8,cz+dz,'stone');
+   else if(dx!==0||dz!==0)put(cx+dx,-8,cz+dz,'stone');
  }
  // Narrow, protected shaft connecting the surface cave to the deep chamber.
- for(let y=-7;y<=Math.max(7,height(cx,cz)+2);y++){
+ for(let y=-7;y<=height(cx,cz)-1;y++){
    for(let d=-1;d<=1;d++){
      put(cx+d,y,cz-1,'stone');put(cx+d,y,cz+1,'stone');
      put(cx-1,y,cz+d,'stone');put(cx+1,y,cz+d,'stone');
