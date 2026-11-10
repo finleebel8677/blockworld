@@ -143,7 +143,7 @@ let feet=p.y-EYE_HEIGHT;
 if(inWater){p.vy=0;const waterEye=4.2;p.y+=(waterEye-p.y)*Math.min(1,dt*5);if(p.y>4.35)p.boatActive=false}
 else{
 p.vy=Number.isFinite(p.vy)?p.vy:0;p.vy=Math.max(-18,p.vy-22*dt);let nextFeet=feet+p.vy*dt,landing=floorBelow(p.x,p.z,feet);
-if(landing>-Infinity&&nextFeet<=landing&&feet>=landing-.3){nextFeet=landing;p.vy=0}
+if(landing>-Infinity&&nextFeet<=landing&&feet>=landing-.8){nextFeet=landing;p.vy=0}
 if(playerBlocked(p.x,p.z,nextFeet)){if(p.vy>0)p.vy=0;else{nextFeet=feet;p.vy=0}}
 p.y=nextFeet+EYE_HEIGHT;
 }
