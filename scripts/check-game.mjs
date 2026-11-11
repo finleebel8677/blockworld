@@ -27,7 +27,7 @@ for (const id of ['joy', 'stick', 'jumpbtn', 'sprintbtn', 'hotbar', 'inventory',
 assert.match(moduleCode, /move\.pointerId=e\.pointerId/, 'Joystick must own its active pointer');
 assert.match(moduleCode, /e\.pointerId!==move\.pointerId/, 'Other fingers must not cancel joystick movement');
 assert.match(moduleCode, /sprintBtn\.addEventListener\('pointerdown'/, 'Sprint must respond to touch-down');
-assert.match(moduleCode, /sprintBtn\.addEventListener\('pointerup'/, 'Sprint must stop on release');
+assert.match(moduleCode, /for\\s*\\(const ev of \\['pointerup','pointercancel','lostpointercapture'\\]\\)/, 'Sprint must listen for release and cancellation');\nassert.match(moduleCode, /setSprinting\\(false\\)/, 'Sprint must clear its active state on release');
 assert.match(moduleCode, /jumpbtn'\)\.addEventListener\('pointerdown'/, 'Jump must respond to touch-down');
 assert.doesNotMatch(moduleCode, /jumpbtn'\)\.addEventListener\('click'/, 'Jump must not be triggered twice by pointer + click');
 assert.match(moduleCode, /baseSpeed\*1\.65/, 'Sprint speed multiplier must be present');
