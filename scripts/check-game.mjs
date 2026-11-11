@@ -103,6 +103,7 @@ for (const token of ["function renderWorldTools()", "function openWorldSettings(
 assert.match(moduleCode, /p\.difficulty==='peaceful'/, 'Peaceful difficulty must suppress hostile damage');
 assert.match(moduleCode, /p\.difficulty==='hard'\?1\.45/, 'Hard difficulty must increase incoming damage');
 assert.match(moduleCode, /worldLimit!=='endless'/, 'Optional world boundaries must be enforced');
+assert.match(moduleCode, /function buildEdit\(x,y,z,t\)[\s\S]*?return false;[\s\S]*?return true/, 'Build tools must not place blocks inside the player and must report successful placements');
 assert.match(moduleCode, /function updateQuestProgress\(item\)/, 'Gathering quest progress must update when resources are mined');
 assert.match(moduleCode, /out:'chair'.*out:'table'.*out:'barrel'/, 'Furniture must be craftable');
 assert.match(moduleCode, /type:'world',name:activeWorld,blocks:/, 'Host must share a named world snapshot with a joining player');
