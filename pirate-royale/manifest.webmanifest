@@ -1,1 +1,1 @@
-{"name":"Pirate Royale","short_name":"Pirate Royale","start_url":"./","scope":"./","display":"standalone","background_color":"#102d36","theme_color":"#102d36","icons":[{"src":"./app-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{"name":"Pirate Royale","short_name":"Pirate Royale","start_url":"./","scope":"./","display":"standalone","background_color":"#102d36","theme_color":"#102d36","icons":[{"src":"./app-icon.png?v=2","sizes":"180x180","type":"image/png","purpose":"any"}]}
