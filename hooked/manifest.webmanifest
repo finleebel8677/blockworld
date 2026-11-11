@@ -1,1 +1,1 @@
-{"name":"HOOKED! Stickman Swing","short_name":"HOOKED!","start_url":"./","scope":"./","display":"standalone","orientation":"landscape","background_color":"#10182d","theme_color":"#10182d","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{"name":"HOOKED! Stickman Swing","short_name":"HOOKED!","start_url":"./","scope":"./","display":"standalone","orientation":"landscape","background_color":"#48c8ff","theme_color":"#48c8ff","icons":[{"src":"./logo.png","sizes":"96x96","type":"image/png","purpose":"any maskable"}]}
