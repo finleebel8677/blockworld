@@ -48,6 +48,56 @@ for (const table of ['profiles', 'player_saves', 'friend_requests', 'friendships
 assert.equal(manifest.orientation, 'landscape', 'Mobile game must remain landscape-oriented');
 assert.equal(manifest.display, 'standalone', 'PWA must remain standalone');
 
+// Execute the real collision, floor, water and jump helpers against a tiny test world.
+const physicsStart = moduleCode.indexOf('const PLAYER_RADIUS=');
+const physicsEnd = moduleCode.indexOf('function jump()', physicsStart);
+assert(physicsStart >= 0 && physicsEnd > physicsStart, 'Physics helper section must be discoverable');
+const physicsCode = moduleCode.slice(physicsStart, physicsEnd);
+const physicsContext = vm.createContext({ blocks: new Map(), key: (x, y, z) => x + ',' + y + ',' + z });
+vm.runInContext(physicsCode, physicsContext);
+vm.runInContext(\`
+  blocks.set(key(0,0,0), {type:'stone'});
+  if (floorBelow(0,0,.5) !== .5) throw new Error('Ground detection missed a floor block');
+  if (playerBlocked(0,0,.5)) throw new Error('Player was blocked by the floor beneath their feet');
+  blocks.set(key(0,1,0), {type:'stone'});
+  if (!playerBlocked(0,0,.5)) throw new Error('Player collision missed a solid body block');
+  blocks.clear();
+  blocks.set(key(0,0,0), {type:'water'});
+  if (!playerInWater(0,0,-.4)) throw new Error('Water overlap was not detected');
+  if (playerInWater(0,0,.6)) throw new Error('Water was detected when the player was above it');
+  if (waterSurfaceAt(0,0) !== .5) throw new Error('Water surface height is incorrect');
+\`, physicsContext);
+
+const jumpStart = moduleCode.indexOf('function jump()');
+const jumpEnd = moduleCode.indexOf('let nightSpawnTimer', jumpStart);
+assert(jumpStart >= 0 && jumpEnd > jumpStart, 'Jump function must be discoverable');
+const jumpCode = moduleCode.slice(jumpStart, jumpEnd);
+const jumpContext = vm.createContext({
+  p: {x:0,y:2.12,z:0,vy:0,paused:false,horseActive:false},
+  EYE_HEIGHT:1.62,
+  playerInWater: () => false,
+  floorBelow: () => .5,
+  $: () => ({style:{display:'none'}}),
+  toast: () => {}, save: () => {}
+});
+vm.runInContext(jumpCode, jumpContext);
+vm.runInContext('jump(); if(p.vy !== 8.2) throw new Error("Ground jump failed"); p.vy=0; p.y=5; jump(); if(p.vy !== 0) throw new Error("Mid-air jump should not retrigger");', jumpContext);
+jumpContext.playerInWater = () => true;
+vm.runInContext('p.y=1.22; jump(); if(p.vy !== 7.2) throw new Error("Water jump failed");', jumpContext);
+
+// Confirm a second finger releasing cannot cancel the joystick's captured pointer.
+const joyStart = moduleCode.indexOf('function joyEnd(e)');
+const joyEnd = moduleCode.indexOf('joy.addEventListener', joyStart);
+assert(joyStart >= 0 && joyEnd > joyStart, 'Joystick release handler must be discoverable');
+const joyCode = moduleCode.slice(joyStart, joyEnd);
+const joyContext = vm.createContext({
+  move: {active:true,pointerId:7,x:1,z:-1},
+  stick: {style:{transform:'held'}}
+});
+vm.runInContext(joyCode, joyContext);
+vm.runInContext('joyEnd({pointerId:8}); if(!move.active || move.x!==1) throw new Error("A different finger cancelled the joystick"); joyEnd({pointerId:7}); if(move.active || move.x!==0 || move.pointerId!==null) throw new Error("Joystick did not release on its own pointer");', joyContext);
+
+
 console.log('BLOCKWORLD checks passed');
 console.log(`HTML IDs: ${ids.length}; DOM references: ${new Set(refs).size}; module bytes: ${moduleCode.length}`);
 console.log('Checked: JavaScript syntax, DOM IDs, multitouch, run/jump controls, physics hooks, world/save hooks, render loop, Supabase RLS, and PWA settings.');
