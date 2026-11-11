@@ -42,6 +42,20 @@ assert.doesNotMatch(moduleCode, /localStorage\.clear\(/, 'Game must never clear 
 assert.match(moduleCode, /Math\.abs\(x-cx\)>1\|\|Math\.abs\(z-cz\)>1/, 'Distant streamed chunks must be unloaded to limit mobile memory');
 assert.doesNotMatch(moduleCode, /oxygenrow'\)\.style\.display=p\.x>22\.2/, 'Oxygen indicator must not use the old false-water coordinate band');
 
+assert.match(moduleCode, /storage:window\.localStorage/, 'Account sessions must persist in browser local storage');
+assert.match(moduleCode, /storageKey:'blockworld-auth-v1'/, 'Account session storage key must remain stable');
+assert.match(moduleCode, /persistSession:true/, 'Supabase session persistence must be enabled');
+assert.match(moduleCode, /autoRefreshToken:true/, 'Supabase access tokens must refresh automatically');
+assert.match(moduleCode, /supabase\.auth\.getSession\(\)/, 'Saved account session must be restored on startup');
+assert.match(moduleCode, /supabase\.auth\.onAuthStateChange/, 'Auth changes must update the current account state');
+assert.match(moduleCode, /function renderFriends\(\)/, 'Friend list renderer must exist');
+assert.match(moduleCode, /friendNames\.map\(n=>n\+\(online\.has\(n\)\?' · ONLINE':''\)\)/, 'Online presence must augment rather than replace the friends list');
+assert.match(moduleCode, /friend_requests'\)\.update\(\{status:'accepted'\}\)/, 'Incoming friend requests must be accept-able');
+assert.match(moduleCode, /profiles'\)\.update\(\{username:localPlayerName/, 'Changing multiplayer name must update searchable profile');
+assert.match(sql, /create trigger blockworld_friend_accept after update of status on public\.friend_requests/i, 'Accepting a request must trigger friendship creation');
+assert.match(sql, /values \(new\.from_user,new\.to_user\)/, 'Accepted request must create the sender friendship row');
+assert.match(sql, /values \(new\.to_user,new\.from_user\)/, 'Accepted request must create the recipient friendship row');
+
 assert.match(moduleCode, /cdn\.jsdelivr\.net\/npm\/three/, 'Primary Three.js source must exist');
 assert.match(moduleCode, /unpkg\.com\/three/, 'Fallback Three.js source must exist');
 
