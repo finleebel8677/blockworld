@@ -33,7 +33,7 @@ assert.match(moduleCode, /jumpbtn'\)\.addEventListener\('pointerdown'/, 'Jump mu
 assert.doesNotMatch(moduleCode, /jumpbtn'\)\.addEventListener\('click'/, 'Jump must not be triggered twice by pointer + click');
 assert.match(moduleCode, /baseSpeed\*1\.65/, 'Sprint speed multiplier must be present');
 
-for (const token of ['function playerBlocked', 'function floorBelow', 'function playerInWater', 'function waterSurfaceAt', 'function generateChunk', 'function streamWorld', 'function save()', 'function switchWorld', 'function showDeath', 'function respawnPlayer', 'requestAnimationFrame(animate)', 'renderer.render(scene,camera)']) {
+for (const token of ['function playerBlocked', 'function ceilingAbove', 'function floorBelow', 'function playerInWater', 'function waterSurfaceAt', 'function generateChunk', 'function streamWorld', 'function save()', 'function switchWorld', 'function showDeath', 'function respawnPlayer', 'requestAnimationFrame(animate)', 'renderer.render(scene,camera)']) {
   assert(moduleCode.includes(token), `Missing core game system: ${token}`);
 }
 
@@ -93,6 +93,9 @@ assert.match(moduleCode, /setPixelRatio\(Math\.min\(devicePixelRatio,1\.05\)\)/,
 assert.match(moduleCode, /antialias:false/, 'Mobile renderer must avoid costly multisample antialiasing');
 assert.match(moduleCode, /bottom=h-6/, 'Base terrain mesh count must be limited');
 assert.match(moduleCode, /const bottom=top-6/, 'Streamed terrain mesh count must be limited');
+assert.match(moduleCode, /for\(let wy=-2;wy<=3;wy\+\+\)\{const wk=key\(x,wy,z\)/, 'Streamed ocean must generate a full water column');
+assert.match(moduleCode, /for\(let wy=-2;wy<=3;wy\+\+\)block\(x,wy,z,'water'\)/, 'The underwater region must fill water beneath its surface');
+assert.match(moduleCode, /const ceiling=ceilingAbove\(p\.x,p\.z,previousFeet,nextFeet\);if\(ceiling>-Infinity\)\{nextFeet=ceiling-PLAYER_HEIGHT;p\.vy=0\}/, 'Jumping into a ceiling must clamp the player below the block');
 
 assert.match(moduleCode, /cdn\.jsdelivr\.net\/npm\/three/, 'Primary Three.js source must exist');
 assert.match(moduleCode, /unpkg\.com\/three/, 'Fallback Three.js source must exist');
@@ -116,6 +119,15 @@ vm.runInContext(`
   if (playerBlocked(0,0,.5)) throw new Error('Player was blocked by the floor beneath their feet');
   blocks.set(key(0,1,0), {type:'stone'});
   if (!playerBlocked(0,0,.5)) throw new Error('Player collision missed a solid body block');
+  blocks.clear();
+  blocks.set(key(0,3,0), {type:'stone'});
+  const ceiling=ceilingAbove(0,0,.5,2.0);
+  if (ceiling !== 2.5) throw new Error('Ceiling collision did not find the underside of the overhead block');
+  if (ceiling-1.8 > 2.0) throw new Error('Ceiling resolution would leave the player inside the block');
+  blocks.clear();
+  for(let y=-2;y<=3;y++)blocks.set(key(0,y,0),{type:'water'});
+  if(!playerInWater(0,0,.5))throw new Error('Full water column did not register as water');
+  if(waterSurfaceAt(0,0)!==3.5)throw new Error('Full water column has the wrong surface height');
   blocks.clear();
   blocks.set(key(0,0,0), {type:'water'});
   if (!playerInWater(0,0,-.4)) throw new Error('Water overlap was not detected');
