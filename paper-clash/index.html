@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#10182b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Paper Clash">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Paper Clash</title>
+<style>
+:root{--bg:#0b1222;--panel:#151f35;--line:#293958;--muted:#93a4c2;--cyan:#42e6d0;--gold:#ffd166}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% -15%,#263e67 0,#111c32 45%,#080e1b 100%);color:#f7fbff;font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none}
+#app{height:100%;height:100dvh;max-width:620px;margin:auto;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);gap:10px}
+header{display:flex;align-items:center;justify-content:space-between;padding:9px 2px 2px}.brand{font-weight:1000;letter-spacing:1.7px;font-size:23px;text-shadow:0 3px 0 #182746}.brand span{color:var(--cyan)}.wallet{border:1px solid #405174;background:#17243d;border-radius:22px;padding:8px 12px;font-weight:900;color:var(--gold)}
+#menu{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;min-height:0}.hero{position:relative;border:1px solid #3b5579;border-radius:26px;padding:23px 20px;background:linear-gradient(140deg,#253e65,#152746 55%,#1a3147);overflow:hidden;box-shadow:0 15px 40px #0005}.hero:after{content:"";position:absolute;width:190px;height:190px;border:28px solid #42e6d022;border-radius:50%;right:-65px;top:-75px}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:2px}.hero h1{font-size:38px;line-height:.98;margin:9px 0 8px;letter-spacing:-1.5px}.hero p{color:#bdcbe0;margin:0;max-width:270px;font-size:13px;line-height:1.5}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#121d31;border:1px solid var(--line);border-radius:15px;padding:12px 8px;text-align:center}.stat b{display:block;font-size:19px}.stat small{color:var(--muted);font-size:10px;letter-spacing:1px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:15px;padding:15px 12px;font-weight:950;font-size:14px;color:#081624;background:linear-gradient(135deg,#66f4d8,#31cbbd);box-shadow:0 5px 0 #138b86;cursor:pointer}.btn.secondary{background:#1b2a45;color:#e9f3ff;border:1px solid #3b5072;box-shadow:0 4px 0 #0a1222}.btn:active{transform:translateY(3px);box-shadow:none}.hint{text-align:center;color:#94a7c6;font-size:11px;line-height:1.5}
+#game{display:none;flex:1;min-height:0;flex-direction:column;gap:8px}.gamebar{display:flex;justify-content:space-between;align-items:center;background:#14213a;border:1px solid var(--line);border-radius:14px;padding:9px 12px;font-size:12px;font-weight:900}.gamebar span{color:var(--cyan)}.boardwrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}.boardframe{width:min(100%,calc(100dvh - 270px));max-width:520px;aspect-ratio:1;position:relative;border:4px solid #344766;border-radius:18px;overflow:hidden;box-shadow:0 12px 35px #0008;background:#111b2e}.boardframe canvas{width:100%;height:100%;display:block}.toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#0a1324dd;border:1px solid #526987;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:900;white-space:nowrap;pointer-events:none}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:5px}.controlnote{font-size:10px;color:#91a4c4;line-height:1.45;max-width:135px}.dpad{display:grid;grid-template-columns:42px 42px 42px;grid-template-rows:36px 36px;gap:4px}.dir{border:1px solid #435878;background:#1c2d49;color:#f3f8ff;border-radius:10px;font-size:17px;font-weight:900}.dir:active{background:#2d5570}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+#modal{display:none;position:fixed;inset:0;background:#050a14dd;z-index:5;align-items:center;justify-content:center;padding:22px}.modalbox{width:min(100%,390px);background:#17243c;border:1px solid #526687;border-radius:24px;padding:23px;text-align:center;box-shadow:0 20px 70px #000b}.modalbox h2{font-size:27px;margin:3px 0 6px}.modalbox p{color:#aebed6;font-size:13px;line-height:1.5}.modalstats{display:flex;justify-content:center;gap:25px;margin:17px}.modalstats b{display:block;font-size:23px;color:var(--gold)}.modalstats small{font-size:10px;color:#aabbd4;font-weight:800}
+#shop{display:none;flex:1;min-height:0;flex-direction:column;gap:12px}.shophead{display:flex;justify-content:space-between;align-items:center}.shopgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow:auto;padding-bottom:10px}.skin{border:1px solid #344966;background:#17243b;border-radius:17px;padding:13px;text-align:center}.swatch{height:62px;border-radius:12px;margin-bottom:9px;display:grid;place-items:center;font-size:28px;font-weight:1000;text-shadow:0 2px 6px #0008}.skin b{display:block;font-size:13px}.skin small{display:block;color:#9eb0ca;margin:4px 0 9px}.skin button{width:100%;padding:9px;border:0;border-radius:10px;background:#2bdfc9;color:#08212b;font-weight:900}.skin button:disabled{background:#354761;color:#c2cde0}
+footer{display:flex;justify-content:space-around;background:#111d32;border:1px solid #293b59;border-radius:16px;padding:10px 5px;margin-bottom:4px}footer button{background:none;border:0;color:#92a5c4;font-size:10px;font-weight:900;display:flex;flex-direction:column;align-items:center;gap:3px}footer button strong{font-size:18px}footer button.active{color:var(--cyan)}
+@media(min-height:800px){.boardframe{width:min(100%,calc(100dvh - 310px))}}@media(max-height:650px){.hero{padding:15px}.hero h1{font-size:30px}.boardframe{width:min(100%,calc(100dvh - 220px))}.controls{padding:0}.dpad{transform:scale(.85);transform-origin:right center}}
+</style>
+</head>
+<body><div id="app">
+<header><div class="brand">PAPER<span>CLASH</span></div><div class="wallet">✦ <b id="coins">0</b></div></header>
+<section id="menu">
+<div class="hero"><div class="eyebrow">CLAIM YOUR SPACE</div><h1>TAKE OVER<br>THE GRID.</h1><p>Draw outside your territory. Close the loop. Own the board. But don't let anyone cut your trail.</p></div>
+<div class="stats"><div class="stat"><b id="best">0%</b><small>BEST LAND</small></div><div class="stat"><b id="wins">0</b><small>WINS</small></div><div class="stat"><b id="level">1</b><small>PLAYER LEVEL</small></div></div>
+<div class="actions"><button class="btn" id="play">▶ PLAY CLASSIC</button><button class="btn secondary" id="shopOpen">✦ SKIN SHOP</button></div>
+<div class="hint">Swipe anywhere to steer • Use the arrows for precise turns<br>Close your trail to claim territory • Don't get cut!</div>
+</section>
+<section id="game">
+<div class="gamebar"><div>LAND <span id="percent">0%</span></div><div>ELIMS <span id="elims">0</span></div><div>RIVALS <span id="rivals">5</span></div></div>
+<div class="boardwrap"><div class="boardframe"><canvas id="board"></canvas></div><div class="toast" id="toast">SWIPE TO STEER</div></div>
+<div class="controls"><div class="controlnote">Draw a loop and return to your color to claim land.</div><div class="dpad"><button class="dir up" data-dir="0">▲</button><button class="dir left" data-dir="3">◀</button><button class="dir down" data-dir="2">▼</button><button class="dir right" data-dir="1">▶</button></div></div>
+</section>
+<section id="shop"><div class="shophead"><h2 style="margin:0">SKIN GARAGE</h2><button class="btn secondary" id="shopBack" style="padding:9px 13px">← BACK</button></div><p style="margin:0;color:#a9bad2;font-size:12px">Earn coins by claiming land and eliminating rivals.</p><div class="shopgrid" id="shopgrid"></div></section>
+<footer><button class="active" id="navHome"><strong>⌂</strong>HOME</button><button id="navPlay"><strong>▦</strong>PLAY</button><button id="navShop"><strong>✦</strong>SKINS</button></footer>
+</div>
+<div id="modal"><div class="modalbox"><div class="eyebrow">RUN COMPLETE</div><h2 id="resultTitle">YOU WERE ELIMINATED</h2><p id="resultText">Your trail got cut. Take another shot at the grid.</p><div class="modalstats"><div><b id="earned">+0</b><small>COINS</small></div><div><b id="finalLand">0%</b><small>LAND CLAIMED</small></div><div><b id="finalKills">0</b><small>ELIMS</small></div></div><button class="btn" id="again" style="width:100%">PLAY AGAIN</button><button class="btn secondary" id="toHome" style="width:100%;margin-top:10px">MAIN MENU</button></div></div>
+<script>
+(()=>{
+const N=42, CELL=1, COLORS=['#ff657a','#ffc857','#a78bfa','#5eead4','#fb923c','#60a5fa','#f472b6'];
+const skins=[{name:'Aqua Pulse',color:'#42e6d0',price:0},{name:'Sunset',color:'#ff786b',price:80},{name:'Royal',color:'#a78bfa',price:140},{name:'Gold Rush',color:'#ffc857',price:220},{name:'Arctic',color:'#8bd8ff',price:300},{name:'Berry',color:'#fa75b7',price:400},{name:'Toxic',color:'#9be36c',price:550},{name:'Midnight',color:'#7185ff',price:700}];
+let save={coins:0,wins:0,best:0,xp:0,skin:0,owned:[0]};try{save={...save,...JSON.parse(localStorage.getItem('paperClashSave')||'{}')}}catch(e){}
+const $=id=>document.getElementById(id), canvas=$('board'),ctx=canvas.getContext('2d');
+let grid,player,bots,dir=1,stepTimer=0,last=0,running=false,raf=0,elims=0,earned=0,trail=[],toastTimer=0,gameMode='classic';
+function persist(){localStorage.setItem('paperClashSave',JSON.stringify(save));updateMenu()}
+function updateMenu(){$('coins').textContent=save.coins;$('best').textContent=save.best+'%';$('wins').textContent=save.wins;$('level').textContent=1+Math.floor(save.xp/250)}
+function show(which){$('menu').style.display=which==='menu'?'flex':'none';$('game').style.display=which==='game'?'flex':'none';$('shop').style.display=which==='shop'?'flex':'none';document.querySelectorAll('footer button').forEach(b=>b.classList.remove('active'));$('nav'+(which==='menu'?'Home':which==='game'?'Play':'Shop')).classList.add('active')}
+function resize(){const box=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
+function idx(x,y){return y*N+x}function inside(x,y){return x>=0&&y>=0&&x<N&&y<N}
+function owner(x,y){return inside(x,y)?grid[idx(x,y)]:-99}
+function paint(x,y,id){if(inside(x,y))grid[idx(x,y)]=id}
+function setup(){
+grid=new Int8Array(N*N);grid.fill(-1);player={id:0,x:Math.floor(N/2),y:Math.floor(N/2),dir:1,color:skins[save.skin].color,trail:[],alive:true,home:0};for(let y=19;y<=22;y++)for(let x=19;x<=22;x++)paint(x,y,0);
+bots=[];for(let i=0;i<5;i++){let spots=[[4,4],[N-5,4],[4,N-5],[N-5,N-5],[N/2|0,4]];let [x,y]=spots[i];let id=i+1;for(let yy=y-1;yy<=y+1;yy++)for(let xx=x-1;xx<=x+1;xx++)paint(xx,yy,id);bots.push({id,x,y,dir:[1,2,3,0,1][i],color:COLORS[i],trail:[],alive:true,turn:0})}
+dir=1;stepTimer=0;elims=0;earned=0;player.trail=[];$('elims').textContent=0;$('toast').textContent='SWIPE TO STEER';$('modal').style.display='none';$('game').style.display='flex';show('game');resize();running=true;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function turn(d){if(!running)return;if((d+2)%4===player.dir)return;dir=d;player.dir=d}
+function move(p,d,isPlayer){
+p.dir=d;const dx=[0,1,0,-1][d],dy=[-1,0,1,0][d],nx=p.x+dx,ny=p.y+dy;
+if(!inside(nx,ny)){if(isPlayer)endGame(false);else killBot(p);return}
+const own=owner(nx,ny);
+if(own===p.id&&p.trail.length){p.x=nx;p.y=ny;claim(p,isPlayer);return}
+if(own===p.id){p.x=nx;p.y=ny;return}
+if(own>=0&&own!==p.id&&p.trail.length){if(isPlayer){const bot=bots.find(b=>b.id===own&&b.alive);if(bot){killBot(bot);p.x=nx;p.y=ny;return}endGame(false)}else{if(own===0){killBot(p);return}killBot(p);return}}
+if(p.trail.some(t=>t.x===nx&&t.y===ny)){if(isPlayer)endGame(false);else killBot(p);return}
+p.x=nx;p.y=ny;p.trail.push({x:nx,y:ny});if(isPlayer){$('toast').textContent='TRAIL EXPOSED — GET HOME!';showToast()} 
+}
+function claim(p,isPlayer){
+const trail=p.trail;for(const t of trail)paint(t.x,t.y,p.id);
+const seen=new Uint8Array(N*N),q=new Int32Array(N*N);let head=0,tail=0;
+for(let x=0;x<N;x++){for(const y of [0,N-1]){let k=idx(x,y);if(grid[k]===-1&&!seen[k]){seen[k]=1;q[tail++]=k}}}
+for(let y=0;y<N;y++){for(const x of [0,N-1]){let k=idx(x,y);if(grid[k]===-1&&!seen[k]){seen[k]=1;q[tail++]=k}}}
+while(head<tail){let k=q[head++],x=k%N,y=(k/N)|0;for(const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]])if(inside(nx,ny)){let nk=idx(nx,ny);if(grid[nk]===-1&&!seen[nk]){seen[nk]=1;q[tail++]=nk}}}
+let captured=0;for(let k=0;k<N*N;k++)if(grid[k]===-1&&!seen[k]){grid[k]=p.id;captured++}
+p.trail=[];if(isPlayer){let gain=Math.max(1,Math.floor(captured/4)+2);earned+=gain;save.coins+=gain;save.xp+=captured+5;showToast('+'+gain+' COINS • TERRITORY CLAIMED');updateHud();persist()}else if(captured>0){/* bot territory expands */}}
+function killBot(b){if(!b.alive)return;b.alive=false;for(const t of b.trail)if(owner(t.x,t.y)===-1)paint(t.x,t.y,-1);b.trail=[];if(running){elims++;earned+=12;save.coins+=12;save.xp+=15;$('elims').textContent=elims;showToast('+12 • RIVAL ELIMINATED');persist();setTimeout(()=>{if(running)spawnBot(b)},1300)}}
+function spawnBot(b){if(!running)return;let spots=[[3,3],[N-4,3],[3,N-4],[N-4,N-4],[N/2|0,3]],s=spots[b.id-1];b.x=s[0];b.y=s[1];b.dir=Math.floor(Math.random()*4);b.alive=true;b.trail=[];for(let y=b.y-1;y<=b.y+1;y++)for(let x=b.x-1;x<=b.x+1;x++)if(owner(x,y)===-1)paint(x,y,b.id)}
+function botStep(b){if(!b.alive)return;let d=b.dir;if(Math.random()<.23||!inside(b.x+[0,1,0,-1][d],b.y+[ -1,0,1,0][d])){let opts=[0,1,2,3].filter(v=>(v+2)%4!==b.dir);d=opts[Math.floor(Math.random()*opts.length)]}
+let nx=b.x+[0,1,0,-1][d],ny=b.y+[-1,0,1,0][d],o=owner(nx,ny);
+if(o===b.id&&b.trail.length===0){move(b,d,false);return}
+if(o===0&&b.trail.length){killBot(b);return}
+if(o>=0&&o!==b.id){if(b.trail.length){killBot(b);return}let opts=[0,1,2,3].filter(v=>(v+2)%4!==d);d=opts[Math.floor(Math.random()*opts.length)]}
+if(b.trail.length>10&&Math.random()<.4){let home=findHome(b);if(home){let dx=home.x-b.x,dy=home.y-b.y;d=Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0)}}
+move(b,d,false);
+}
+function findHome(b){for(let r=1;r<8;r++)for(let y=b.y-r;y<=b.y+r;y++)for(let x=b.x-r;x<=b.x+r;x++)if(owner(x,y)===b.id)return{x,y};return null}
+function updateHud(){let count=0;for(let k=0;k<grid.length;k++)if(grid[k]===0)count++;let pct=Math.round(count/grid.length*100);$('percent').textContent=pct+'%';$('rivals').textContent=bots.filter(b=>b.alive).length;save.best=Math.max(save.best,pct)}
+function showToast(msg){if(msg)$('toast').textContent=msg;toastTimer=1.7}
+function tick(){move(player,dir,true);for(const b of bots)if(b.alive)botStep(b);updateHud();if(running){let count=bots.filter(b=>b.alive).length;if(count===0){endGame(true)}}}
+function loop(now){if(!running)return;let dt=Math.min((now-last)/1000,.05);last=now;stepTimer+=dt;if(stepTimer>.125){stepTimer=0;tick()}if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').textContent=player.trail.length?'TRAIL EXPOSED — GET HOME!':'SWIPE TO STEER'}draw();raf=requestAnimationFrame(loop)}
+function draw(){if(!ctx||!grid)return;let w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;ctx.clearRect(0,0,w,h);let s=Math.min(w,h)/N,ox=(w-s*N)/2,oy=(h-s*N)/2;ctx.fillStyle='#101a2b';ctx.fillRect(ox,oy,s*N,s*N);
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){let id=grid[idx(x,y)];if(id>=0){let color=id===0?player.color:COLORS[(id-1)%COLORS.length];ctx.fillStyle=color;ctx.globalAlpha=.76;ctx.fillRect(ox+x*s+.45,oy+y*s+.45,s-.9,s-.9);ctx.globalAlpha=1;ctx.fillStyle='#ffffff18';ctx.fillRect(ox+x*s+2,oy+y*s+2,s-4,Math.max(1,s*.13))}else{ctx.fillStyle=((x+y)%2===0)?'#17243a':'#142137';ctx.fillRect(ox+x*s,oy+y*s,s-.5,s-.5)}}
+for(const p of [player,...bots]){if(!p.alive)continue;for(const t of p.trail){ctx.fillStyle=p.color;ctx.globalAlpha=.95;ctx.fillRect(ox+t.x*s+.5,oy+t.y*s+.5,s-1,s-1);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(ox+t.x*s+1,oy+t.y*s+1,s-2,s-2)}ctx.globalAlpha=1;let cx=ox+(p.x+.5)*s,cy=oy+(p.y+.5)*s;ctx.shadowColor=p.color;ctx.shadowBlur=12;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,s*.37,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(cx,cy,s*.25,0,Math.PI*2);ctx.fill();ctx.fillStyle='#102035';ctx.beginPath();ctx.arc(cx-s*.08,cy-s*.03,s*.045,0,Math.PI*2);ctx.arc(cx+s*.08,cy-s*.03,s*.045,0,Math.PI*2);ctx.fill()}
+ctx.strokeStyle='#526987';ctx.lineWidth=2;ctx.strokeRect(ox,oy,s*N,s*N)}
+function endGame(won){if(!running)return;running=false;cancelAnimationFrame(raf);let pct=parseInt($('percent').textContent)||0;let bonus=won?100:0;earned+=bonus;save.coins+=bonus;if(won)save.wins++;save.best=Math.max(save.best,pct);persist();$('resultTitle').textContent=won?'GRID DOMINATED!':'TRAIL CUT!';$('resultText').textContent=won?'You cleared every rival off the board. Absolute takeover.':'You left your territory exposed for too long. One more run?';$('earned').textContent='+'+earned;$('finalLand').textContent=pct+'%';$('finalKills').textContent=elims;$('modal').style.display='flex'}
+function start(){show('game');setup()}
+function renderShop(){const el=$('shopgrid');el.innerHTML='';skins.forEach((s,i)=>{let owned=save.owned.includes(i),selected=save.skin===i;let card=document.createElement('div');card.className='skin';card.innerHTML='<div class="swatch" style="background:linear-gradient(135deg,'+s.color+'55,'+s.color+');color:#fff">●</div><b>'+s.name+'</b><small>'+ (selected?'EQUIPPED':owned?'UNLOCKED':s.price+' coins')+'</small><button '+(selected?'disabled':'')+'>'+(selected?'EQUIPPED':owned?'EQUIP':'UNLOCK')+'</button>';card.querySelector('button').onclick=()=>{if(owned){save.skin=i;persist();renderShop()}else if(save.coins>=s.price){save.coins-=s.price;save.owned.push(i);save.skin=i;persist();renderShop()}else{card.querySelector('small').textContent='NEED '+(s.price-save.coins)+' MORE COINS'}};el.appendChild(card)})}
+$('play').onclick=start;$('navPlay').onclick=start;$('navHome').onclick=()=>{running=false;cancelAnimationFrame(raf);$('modal').style.display='none';show('menu')};$('shopOpen').onclick=$('navShop').onclick=()=>{renderShop();show('shop')};$('shopBack').onclick=()=>show('menu');$('again').onclick=start;$('toHome').onclick=()=>{$('modal').style.display='none';show('menu')};
+document.querySelectorAll('[data-dir]').forEach(b=>{let d=+b.dataset.dir;b.addEventListener('pointerdown',e=>{e.preventDefault();turn(d)})});
+let sx=0,sy=0;canvas.addEventListener('touchstart',e=>{let t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});canvas.addEventListener('touchend',e=>{let t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))>14)turn(Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0))},{passive:true});
+let px=0,py=0;canvas.addEventListener('pointerdown',e=>{px=e.clientX;py=e.clientY});canvas.addEventListener('pointerup',e=>{let dx=e.clientX-px,dy=e.clientY-py;if(Math.max(Math.abs(dx),Math.abs(dy))>14)turn(Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0))});
+window.addEventListener('resize',resize);document.addEventListener('visibilitychange',()=>{if(document.hidden&&running){last=performance.now()}});
+updateMenu();show('menu');resize();
+})();
+</script></body></html>
