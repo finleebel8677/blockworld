@@ -56,6 +56,22 @@ assert.match(sql, /create trigger blockworld_friend_accept after update of statu
 assert.match(sql, /values \(new\.from_user,new\.to_user\)/, 'Accepted request must create the sender friendship row');
 assert.match(sql, /values \(new\.to_user,new\.from_user\)/, 'Accepted request must create the recipient friendship row');
 
+
+// Adventurer Update: progression tiers, treasure, and generated structures.
+assert.match(moduleCode, /function buildAdventureStructure\(/, 'Adventure structure generator must exist');
+assert.match(moduleCode, /buildAdventureStructure\('castle'/, 'Rare castles must generate in explored chunks');
+assert.match(moduleCode, /buildAdventureStructure\('temple'/, 'Desert temples must generate');
+assert.match(moduleCode, /buildAdventureStructure\('ruin'/, 'Jungle ruins must generate');
+assert.match(moduleCode, /buildAdventureStructure\('tower'/, 'Watchtowers must generate');
+assert.match(moduleCode, /castle_chest|temple_chest|ruin_chest|tower_chest/, 'Structures must contain unique treasure chests');
+assert.match(moduleCode, /p\.claimedChests/, 'Structure treasure must only be claimed once and persist in the save');
+assert.match(moduleCode, /requiredTier=\{stone:0,coal:0,copper:0,iron:1,gold:1,diamond_ore:2,obsidian:2,ancient_shard:3\}/, 'Ore mining must require progressively better pickaxes');
+assert.match(moduleCode, /pickaxeTiers=\{pickaxe:0,stone_pickaxe:1,iron_pickaxe:2,diamond_pickaxe:3\}/, 'Pickaxe tiers must be defined');
+assert.match(moduleCode, /out:'stone_pickaxe'.*out:'iron_pickaxe'.*out:'diamond_pickaxe'/, 'Stone, iron, and diamond pickaxes must be craftable');
+assert.match(moduleCode, /diamond_ore:tex/, 'Diamond ore must have a visual material');
+assert.match(moduleCode, /ancient_shard:tex/, 'Ancient shards must have a visual material');
+assert.match(moduleCode, /function buildAdventureStructure/, 'Adventure structure builder must exist');
+
 assert.match(moduleCode, /function buildBossDungeon\(/, 'Rare boss dungeon generator must exist');
 assert.match(moduleCode, /rnd\(cx\+1771,cz-911\)>.94/, 'Boss dungeons must be rare world discoveries');
 assert.match(moduleCode, /guard\.dungeonBoss=true/, 'Dungeon guards must be marked as boss enemies');
