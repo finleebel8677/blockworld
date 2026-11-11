@@ -124,6 +124,7 @@ vm.runInContext(`
   const ceiling=ceilingAbove(0,0,.5,2.0);
   if (ceiling !== 2.5) throw new Error('Ceiling collision did not find the underside of the overhead block');
   if (ceiling-1.8 > 2.0) throw new Error('Ceiling resolution would leave the player inside the block');
+  if (playerBlocked(0,0,ceiling-1.8)) throw new Error('Player must be free immediately below a ceiling block');
   blocks.clear();
   for(let y=-2;y<=3;y++)blocks.set(key(0,y,0),{type:'water'});
   if(!playerInWater(0,0,.5))throw new Error('Full water column did not register as water');
