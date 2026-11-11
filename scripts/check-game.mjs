@@ -39,6 +39,9 @@ for (const token of ['function playerBlocked', 'function floorBelow', 'function 
 assert.match(moduleCode, /blockworld-save/, 'Existing local save key must be preserved');
 assert.match(moduleCode, /worldEdits/, 'World edit persistence must remain present');
 assert.doesNotMatch(moduleCode, /localStorage\.clear\(/, 'Game must never clear all local storage');
+assert.match(moduleCode, /Math\.abs\(x-cx\)>1\|\|Math\.abs\(z-cz\)>1/, 'Distant streamed chunks must be unloaded to limit mobile memory');
+assert.doesNotMatch(moduleCode, /oxygenrow'\)\.style\.display=p\.x>22\.2/, 'Oxygen indicator must not use the old false-water coordinate band');
+
 assert.match(moduleCode, /cdn\.jsdelivr\.net\/npm\/three/, 'Primary Three.js source must exist');
 assert.match(moduleCode, /unpkg\.com\/three/, 'Fallback Three.js source must exist');
 
