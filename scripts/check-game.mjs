@@ -95,6 +95,17 @@ assert.match(moduleCode, /bottom=h-6/, 'Base terrain mesh count must be limited'
 assert.match(moduleCode, /const bottom=top-6/, 'Streamed terrain mesh count must be limited');
 assert.match(moduleCode, /for\(let wy=-2;wy<=3;wy\+\+\)\{const wk=key\(x,wy,z\)/, 'Streamed ocean must generate a full water column');
 assert.match(moduleCode, /for\(let wy=-2;wy<=3;wy\+\+\)block\(x,wy,z,'water'\)/, 'The underwater region must fill water beneath its surface');
+
+// World expansion regression checks.
+for (const token of ["function renderWorldTools()", "function openWorldSettings()", "function buildEdit(", "copybuild", "rotatebuild", "pastebuild", "fillbuild", "startquest", "p.quest.targets", "p.achievements", "difficultysetting", "terrainsetting", "worldlimitsetting", "timesetting", "weathersetting", "awardAchievement('first_kill'", "buildAdventureStructure('mine'", "buildAdventureStructure('waterfall'", "shipwreck_chest", "mine_chest", "playerskin", "remoteSkinColor", "saveQuietly();netStatus('Joined shared world:"]) {
+  assert(moduleCode.includes(token), `Missing world expansion feature: ${token}`);
+}
+assert.match(moduleCode, /p\.difficulty==='peaceful'/, 'Peaceful difficulty must suppress hostile damage');
+assert.match(moduleCode, /p\.difficulty==='hard'\?1\.45/, 'Hard difficulty must increase incoming damage');
+assert.match(moduleCode, /worldLimit!=='endless'/, 'Optional world boundaries must be enforced');
+assert.match(moduleCode, /function updateQuestProgress\(item\)/, 'Gathering quest progress must update when resources are mined');
+assert.match(moduleCode, /out:'chair'.*out:'table'.*out:'barrel'/, 'Furniture must be craftable');
+assert.match(moduleCode, /type:'world',name:activeWorld,blocks:/, 'Host must share a named world snapshot with a joining player');
 assert.match(moduleCode, /const ceiling=ceilingAbove\(p\.x,p\.z,previousFeet,nextFeet\);if\(ceiling>-Infinity\)\{nextFeet=ceiling-PLAYER_HEIGHT;p\.vy=0\}/, 'Jumping into a ceiling must clamp the player below the block');
 
 assert.match(moduleCode, /cdn\.jsdelivr\.net\/npm\/three/, 'Primary Three.js source must exist');
