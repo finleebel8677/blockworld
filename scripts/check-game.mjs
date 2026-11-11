@@ -55,7 +55,7 @@ assert(physicsStart >= 0 && physicsEnd > physicsStart, 'Physics helper section m
 const physicsCode = moduleCode.slice(physicsStart, physicsEnd);
 const physicsContext = vm.createContext({ blocks: new Map(), key: (x, y, z) => x + ',' + y + ',' + z });
 vm.runInContext(physicsCode, physicsContext);
-vm.runInContext(\`
+vm.runInContext(`
   blocks.set(key(0,0,0), {type:'stone'});
   if (floorBelow(0,0,.5) !== .5) throw new Error('Ground detection missed a floor block');
   if (playerBlocked(0,0,.5)) throw new Error('Player was blocked by the floor beneath their feet');
@@ -66,7 +66,7 @@ vm.runInContext(\`
   if (!playerInWater(0,0,-.4)) throw new Error('Water overlap was not detected');
   if (playerInWater(0,0,.6)) throw new Error('Water was detected when the player was above it');
   if (waterSurfaceAt(0,0) !== .5) throw new Error('Water surface height is incorrect');
-\`, physicsContext);
+`, physicsContext);
 
 const jumpStart = moduleCode.indexOf('function jump()');
 const jumpEnd = moduleCode.indexOf('let nightSpawnTimer', jumpStart);
