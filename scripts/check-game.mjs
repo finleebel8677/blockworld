@@ -56,6 +56,23 @@ assert.match(sql, /create trigger blockworld_friend_accept after update of statu
 assert.match(sql, /values \(new\.from_user,new\.to_user\)/, 'Accepted request must create the sender friendship row');
 assert.match(sql, /values \(new\.to_user,new\.from_user\)/, 'Accepted request must create the recipient friendship row');
 
+assert.match(moduleCode, /function buildBossDungeon\(/, 'Rare boss dungeon generator must exist');
+assert.match(moduleCode, /rnd\(cx\+1771,cz-911\)>.94/, 'Boss dungeons must be rare world discoveries');
+assert.match(moduleCode, /guard\.dungeonBoss=true/, 'Dungeon guards must be marked as boss enemies');
+assert.match(moduleCode, /DUNGEON BOSS DEFEATED/, 'Dungeon boss must award a special reward');
+assert.match(moduleCode, /function buildVillageExtras\(/, 'Expanded village features must be generated');
+assert.match(moduleCode, /buildVillageExtras\(\)/, 'Expanded village must be placed in the starting world');
+assert.match(moduleCode, /p\.food>=100/, 'Health regeneration must require a full hunger bar');
+assert.match(moduleCode, /p\.regenTimer>=4/, 'Full-hunger health regeneration must tick over time');
+assert.match(moduleCode, /function eatFood\(item\)/, 'Food eating handler must exist');
+assert.match(moduleCode, /id="eatbtn"/, 'Touch-friendly eat button must exist');
+assert.match(moduleCode, /foodGain=item==='cooked_meat'\?32:item==='fish'\?18:8/, 'Food types must restore different hunger amounts');
+assert.match(moduleCode, /physicsSteps=Math\.max\(1,Math\.ceil\(dt\/\(1\/120\)\)\)/, 'Vertical movement must use small physics substeps for smoother jumps');
+assert.match(moduleCode, /setPixelRatio\(Math\.min\(devicePixelRatio,1\.05\)\)/, 'Mobile rendering resolution must be capped for performance');
+assert.match(moduleCode, /antialias:false/, 'Mobile renderer must avoid costly multisample antialiasing');
+assert.match(moduleCode, /bottom=h-6/, 'Base terrain mesh count must be limited');
+assert.match(moduleCode, /const bottom=top-6/, 'Streamed terrain mesh count must be limited');
+
 assert.match(moduleCode, /cdn\.jsdelivr\.net\/npm\/three/, 'Primary Three.js source must exist');
 assert.match(moduleCode, /unpkg\.com\/three/, 'Fallback Three.js source must exist');
 
