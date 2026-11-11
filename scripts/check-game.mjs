@@ -65,7 +65,7 @@ assert.match(moduleCode, /buildVillageExtras\(\)/, 'Expanded village must be pla
 assert.match(moduleCode, /p\.food>=100/, 'Health regeneration must require a full hunger bar');
 assert.match(moduleCode, /p\.regenTimer>=4/, 'Full-hunger health regeneration must tick over time');
 assert.match(moduleCode, /function eatFood\(item\)/, 'Food eating handler must exist');
-assert.match(moduleCode, /id="eatbtn"/, 'Touch-friendly eat button must exist');
+assert.match(html, /id="eatbtn"/, 'Touch-friendly eat button must exist');
 assert.match(moduleCode, /foodGain=item==='cooked_meat'\?32:item==='fish'\?18:8/, 'Food types must restore different hunger amounts');
 assert.match(moduleCode, /physicsSteps=Math\.max\(1,Math\.ceil\(dt\/\(1\/120\)\)\)/, 'Vertical movement must use small physics substeps for smoother jumps');
 assert.match(moduleCode, /setPixelRatio\(Math\.min\(devicePixelRatio,1\.05\)\)/, 'Mobile rendering resolution must be capped for performance');
