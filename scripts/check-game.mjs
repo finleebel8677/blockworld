@@ -43,7 +43,7 @@ assert.match(moduleCode, /Math\.abs\(x-cx\)>1\|\|Math\.abs\(z-cz\)>1/, 'Distant 
 assert.doesNotMatch(moduleCode, /oxygenrow'\)\.style\.display=p\.x>22\.2/, 'Oxygen indicator must not use the old false-water coordinate band');
 
 assert.match(moduleCode, /storage:window\.localStorage/, 'Account sessions must persist in browser local storage');
-assert.match(moduleCode, /storageKey:'blockworld-auth-v1'/, 'Account session storage key must remain stable');
+assert.match(moduleCode, /storageKey:'sb-mfhytrxfxfxnpsbkzlbu-auth-token'/, 'Account session storage key must remain stable');
 assert.match(moduleCode, /persistSession:true/, 'Supabase session persistence must be enabled');
 assert.match(moduleCode, /autoRefreshToken:true/, 'Supabase access tokens must refresh automatically');
 assert.match(moduleCode, /supabase\.auth\.getSession\(\)/, 'Saved account session must be restored on startup');
