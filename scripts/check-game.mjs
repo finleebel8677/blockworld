@@ -36,6 +36,11 @@ assert.match(moduleCode, /baseSpeed\*1\.65/, 'Sprint speed multiplier must be pr
 for (const token of ['function playerBlocked', 'function floorBelow', 'function playerInWater', 'function waterSurfaceAt', 'function generateChunk', 'function streamWorld', 'function save()', 'function switchWorld', 'function showDeath', 'function respawnPlayer', 'requestAnimationFrame(animate)', 'renderer.render(scene,camera)']) {
   assert(moduleCode.includes(token), `Missing core game system: ${token}`);
 }
+
+assert.match(moduleCode, /Math\.abs\(\(p\.y-EYE_HEIGHT\)-c\.g\.position\.y\)<2\.6/, 'Hostile mobs must be vertically near the player before they can attack');
+assert.match(moduleCode, /function respawnPlayer\(\)[\s\S]*?jumpbtn'\)\.style\.display='flex'/, 'Respawning must restore the jump button');
+assert.match(moduleCode, /function respawnPlayer\(\)[\s\S]*?sprintbtn'\)\.style\.display='flex'/, 'Respawning must restore the sprint button');
+
 assert.match(moduleCode, /blockworld-save/, 'Existing local save key must be preserved');
 assert.match(moduleCode, /worldEdits/, 'World edit persistence must remain present');
 assert.doesNotMatch(moduleCode, /localStorage\.clear\(/, 'Game must never clear all local storage');
