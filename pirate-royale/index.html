@@ -6,14 +6,14 @@
 <meta name="theme-color" content="#102d36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Pirate Royale">
-<link rel="apple-touch-icon" sizes="180x180" href="./app-icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="./app-icon.png">
 <link rel="icon" type="image/svg+xml" href="./app-icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>PIRATE ROYALE</title>
 <style>
 :root{color-scheme:dark;--gold:#ffd36b;--ink:#10252c}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#123d49;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none;user-select:none}
-#rotate{display:none;position:fixed;inset:0;z-index:20;background:#102b35;color:#ffe0a0;align-items:center;justify-content:center;text-align:center;padding:28px;font-weight:900;font-size:24px}#rotate span{display:block;font-size:54px;margin-bottom:18px}@media(orientation:portrait){#rotate{display:flex}#overlay{display:none!important}}
+#rotate{display:none;position:fixed;inset:0;z-index:20;background:#102b35;color:#ffe0a0;align-items:center;justify-content:center;text-align:center;padding:28px;font-weight:900;font-size:24px}#rotate span{display:block;font-size:54px;margin-bottom:18px}@media(orientation:portrait){#rotate{display:none!important}#overlay{display:flex!important}}
 canvas{display:block;width:100%;height:100%;touch-action:none}
 #hud{position:fixed;inset:0;pointer-events:none;color:white;text-shadow:0 2px 3px #12252b}
 .top{position:absolute;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -48,7 +48,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
  <canvas id="minimap" width="180" height="140" style="position:absolute;right:12px;top:82px;width:190px;height:148px;border:2px solid rgba(255,255,255,.85);border-radius:9px;background:rgba(8,45,48,.72);z-index:5"></canvas><div id="healthWrap"><div id="health"></div></div><div id="zone">STORM SHRINKS IN <b id="timer">45</b>s</div><div id="hint">Explore islands • Find treasure • Survive</div>
 </div>
 <div id="controls"><div id="stick"><div id="nub"></div></div></div>
-<div id="rotate"><div><span>📱 ↻</span>TURN YOUR PHONE SIDEWAYS<br><small style="font-size:14px;font-weight:500;color:#c5d8d5">PIRATE ROYALE is designed for landscape play</small></div></div><div id="toast"></div>
+<div id="rotate" aria-hidden="true"></div><div id="toast"></div>
 <div id="overlay"><div class="card"><div style="font-size:30px">🏝️⚔️🏴‍☠️</div><div class="logo">PIRATE ROYALE</div><div class="subtitle" id="intro">Choose your pirate, customize your look, and conquer the islands!</div><div class="homegrid"><div class="homebox"><div class="progresslabel">PIRATE NAME</div><input id="pirateName" class="homeinput" maxlength="16" placeholder="Enter your pirate name" autocomplete="off"></div><div class="homebox"><div class="progresslabel">YOUR TREASURE</div><div class="homevalue">🪙 <span id="homeCoins">0</span> COINS</div><div class="homehint">Earn coins during battles</div></div><div class="homebox"><div class="progresslabel">SELECT ISLAND</div><div id="islandPicks" class="pickrow"></div></div><div class="homebox"><div class="progresslabel">YOUR SKINS</div><div id="skinPicks" class="pickrow"></div></div></div><div class="homebox"><div class="progresslabel">CHOOSE YOUR PIRATE CHARACTER</div><div id="piratePicks" class="pickrow"></div></div><div class="homebox petshop"><div class="progresslabel">🐾 PET COMPANIONS • BUY & EQUIP</div><div id="petPicks" class="pickrow"></div><div class="homehint">Your pet follows you and heals you during battles. Better pets heal faster.</div></div><div class="homeactions" style="margin-top:12px"><button class="bigbtn" id="play">🏴‍☠️ PLAY</button></div><div class="small">Landscape mode • Left joystick to move • Tap anywhere to attack<br>Hold anywhere for a charged attack</div></div></div>
 <script>
 (()=>{
