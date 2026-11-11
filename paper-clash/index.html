@@ -59,6 +59,8 @@ function turn(d){if(!running)return;if((d+2)%4===player.dir)return;dir=d;player.
 function move(p,d,isPlayer){
 p.dir=d;const dx=[0,1,0,-1][d],dy=[-1,0,1,0][d],nx=p.x+dx,ny=p.y+dy;
 if(!inside(nx,ny)){if(isPlayer)endGame(false);else killBot(p);return}
+if(isPlayer){const exposed=bots.find(b=>b.alive&&b.trail.some(t=>t.x===nx&&t.y===ny));if(exposed){killBot(exposed);p.x=nx;p.y=ny;return}}
+else{if(player.trail.some(t=>t.x===nx&&t.y===ny)){killBot(p);return}const other=bots.find(b=>b!==p&&b.alive&&b.trail.some(t=>t.x===nx&&t.y===ny));if(other){killBot(p);killBot(other);return}}
 const own=owner(nx,ny);
 if(own===p.id&&p.trail.length){p.x=nx;p.y=ny;claim(p,isPlayer);return}
 if(own===p.id){p.x=nx;p.y=ny;return}
