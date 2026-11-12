@@ -93,8 +93,9 @@ function update(dt){
  if(world.swing){
   const sw=world.swing,L=sw.rope.len;
   for(let i=0;i<substeps;i++){
-   sw.omega+=-(.42/L)*Math.sin(sw.theta)*h;
-   sw.omega*=Math.pow(.9992,h);
+   // Strong, clearly visible pendulum acceleration (normalized for phone screens).
+   sw.omega+=-.018*Math.sin(sw.theta)*h;
+   sw.omega*=Math.pow(.9997,h);
    sw.theta+=sw.omega*h;
   }
   c.x=sw.rope.anchor.x+L*Math.sin(sw.theta);
