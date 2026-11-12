@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#10182d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Candy Swing</title>
+<style>
+:root{color-scheme:dark;--ink:#f7f7ff;--muted:#aab5d1;--panel:#192542;--gold:#ffd45e;--cyan:#71e6e0}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10182d;color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;overscroll-behavior:none;touch-action:none}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app{height:100dvh;min-height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 18%,#263c66 0,#172544 42%,#10182d 100%);overflow:hidden}
+header{height:64px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:7px 15px;z-index:2}
+.brand{display:flex;align-items:center;gap:9px;font-weight:1000;letter-spacing:1.3px;font-size:15px}.brandmark{width:35px;height:35px;border-radius:12px;background:linear-gradient(145deg,#ffdc72,#ff9b55);display:grid;place-items:center;color:#573a25;font-size:21px;box-shadow:0 4px 0 #b86d48}
+.hud{display:flex;gap:8px;align-items:center}.pill{background:#263657;border:1px solid #40547a;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:850}.pill b{color:var(--gold)}
+#stage{position:relative;flex:1;min-height:0;overflow:hidden}canvas{display:block;width:100%;height:100%;touch-action:none}
+#topActions{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}#topActions button{pointer-events:auto}
+button{border:0;color:#17213a;background:#f6f7ff;border-radius:14px;padding:10px 14px;font-weight:900;font-size:13px;box-shadow:0 4px 0 #aeb8d4;touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #aeb8d4}.round{width:40px;height:40px;padding:0;border-radius:50%;font-size:17px}
+#bottom{flex:none;min-height:76px;padding:8px 14px calc(9px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(180deg,transparent,#111b33 28%);z-index:2}
+#message{font-size:12px;color:var(--muted);line-height:1.3;max-width:52%}#primary{background:linear-gradient(180deg,#ffe68d,#ffbd4f);box-shadow:0 4px 0 #bb813c;padding:13px 20px}
+.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:22px;background:#0b1325d9;z-index:5;backdrop-filter:blur(7px)}.overlay.show{display:flex}.modal{width:min(100%,360px);background:linear-gradient(160deg,#26395f,#182542);border:1px solid #52658c;border-radius:26px;padding:25px 22px;text-align:center;box-shadow:0 18px 55px #0008}.modal h1{font-size:28px;margin:6px 0 8px}.modal p{color:#c3cce0;font-size:14px;line-height:1.5}.modal .big{font-size:54px;margin-bottom:3px}.modal button{margin:7px 4px 0} .starsline{font-size:27px;letter-spacing:5px;color:var(--gold);margin:12px}
+#levelSelect{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:17px 0;max-height:48vh;overflow:auto}#levelSelect button{padding:12px 0;border-radius:12px;background:#30456c;color:white;box-shadow:0 3px 0 #17233c}#levelSelect button.locked{opacity:.35}#levelSelect button.done{background:#3e796f}
+.small{font-size:11px;color:#9daecc}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="brand"><div class="brandmark">✦</div><span>CANDY SWING</span></div><div class="hud"><div class="pill">LEVEL <b id="levelNo">1</b></div><div class="pill">★ <b id="starCount">0</b>/3</div></div></header>
+<main id="stage"><canvas id="game"></canvas>
+<div id="topActions"><button class="round" id="levelsBtn" aria-label="Levels">☰</button><button class="round" id="restartBtn" aria-label="Restart">↻</button></div>
+<div class="overlay show" id="startOverlay"><div class="modal"><div class="big">🍬</div><h1>Candy Swing</h1><p>Snip the ropes, swing the candy, collect all three stars, and feed your little buddy!</p><p class="small">Swipe across a rope to cut it. Timing is everything.</p><button id="playBtn">LET'S PLAY</button></div></div>
+<div class="overlay" id="levelOverlay"><div class="modal"><div class="big">🗺️</div><h1>Choose a level</h1><p>Complete levels to unlock the next challenge.</p><div id="levelSelect"></div><button id="closeLevels">BACK</button></div></div>
+<div class="overlay" id="winOverlay"><div class="modal"><div class="big">🎉</div><h1>Sweet!</h1><div class="starsline" id="winStars">★★★</div><p id="winText">You got the candy to your buddy!</p><button id="nextBtn">NEXT LEVEL</button><button id="replayBtn">REPLAY</button></div></div>
+<div class="overlay" id="loseOverlay"><div class="modal"><div class="big">💥</div><h1>Oops!</h1><p>The candy got away. Give it another try!</p><button id="tryBtn">TRY AGAIN</button><button id="levelListBtn">LEVELS</button></div></div>
+</main>
+<footer id="bottom"><div id="message">Swipe across a rope to snip it.</div><button id="primary">RESTART ↻</button></footer>
+</div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=0,H=0,dpr=1,level=1,unlocked=Number(localStorage.getItem('cs-unlocked')||1),best=JSON.parse(localStorage.getItem('cs-stars')||'{}'),world=null,raf=0,last=0,won=false,lost=false,started=false,swipe=null,audio=null;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function resize(){const r=canvas.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);if(world)layoutWorld(true)}
+addEventListener('resize',resize);
+function layoutWorld(keep=false){
+ const s=Math.min(W/390,H/650),cx=W/2,top=H*.13,bottom=H*.84;
+ const layouts=[
+ [[.5,.24]],[[.28,.2],[.72,.2]],[[.2,.18],[.8,.18]],[[.5,.17],[.18,.35]],[[.25,.18],[.75,.18],[.5,.36]],
+ [[.18,.2],[.5,.16],[.82,.2]],[[.28,.18],[.72,.18],[.5,.32]],[[.18,.18],[.5,.25],[.82,.18]],[[.3,.17],[.7,.17],[.5,.38]],[[.15,.2],[.5,.16],[.85,.2]]
+ ];
+ const ix=(level-1)%layouts.length,anchors=layouts[ix].map(([x,y])=>({x:W*x,y:H*y}));
+ const candy=keep&&world?world.candy:{x:W*.5,y:H*.43,vx:0,vy:0};
+ const mouth={x:W*.5,y:H*.79,r:30};
+ const stars=keep&&world?world.stars: [0,1,2].map(i=>({x:W*(.24+i*.26),y:H*(.48+(i%2)*.1),got:false,phase:i*2}));
+ if(!keep){
+  stars.forEach((st,i)=>{st.x=W*(.23+i*.27);st.y=H*(.48+((i+level)%2)*.095);});
+  if(level%3===0)stars[1].y=H*.34;
+ }
+ world={anchors,candy,mouth,stars,ropes:anchors.map((a,i)=>({anchor:a,len:Math.hypot(candy.x-a.x,candy.y-a.y),cut:false,phase:i})),obstacles:[],particles:[],time:0,trail:[],level};
+ if(level>=4){world.obstacles.push({x:W*.5,y:H*.59,r:level%2?21:26,type:'spike'});}
+ if(level>=7){world.obstacles.push({x:W*(level%2?.3:.7),y:H*.42,r:16,type:'bumper'});}
+ world.ropes.forEach(r=>{r.len=Math.hypot(candy.x-r.anchor.x,candy.y-r.anchor.y)*.88});
+}
+function loadLevel(n){level=clamp(n,1,30);won=lost=false;started=true;$('levelNo').textContent=level;$('starCount').textContent='0';$('message').textContent='Swipe across a rope to snip it.';hideAll();layoutWorld();draw();if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
+function hideAll(){document.querySelectorAll('.overlay').forEach(x=>x.classList.remove('show'))}
+function show(id){hideAll();$(id).classList.add('show')}
+function save(){localStorage.setItem('cs-unlocked',String(unlocked));localStorage.setItem('cs-stars',JSON.stringify(best))}
+function levelButtons(){const box=$('levelSelect');box.innerHTML='';for(let i=1;i<=30;i++){const b=document.createElement('button');b.textContent=i+(best[i]?' ★':'');b.className=(i>unlocked?'locked ':'')+(best[i]?'done':'');b.disabled=i>unlocked;b.onclick=()=>loadLevel(i);box.appendChild(b)}}
+function sound(freq=550,dur=.08,type='sine'){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.07,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+dur);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+dur)}catch(e){}}
+function cutAt(x,y){if(!world||won||lost)return;let nearest=null,dist=18;world.ropes.forEach((r,i)=>{if(r.cut)return;const d=pointSeg(x,y,r.anchor.x,r.anchor.y,world.candy.x,world.candy.y);if(d<dist){dist=d;nearest=r}});if(nearest){nearest.cut=true;sound(780,.07,'triangle');for(let i=0;i<7;i++)particle((nearest.anchor.x+world.candy.x)/2,(nearest.anchor.y+world.candy.y)/2,'#bceeff')}}
+function pointSeg(px,py,x1,y1,x2,y2){const dx=x2-x1,dy=y2-y1,t=clamp(((px-x1)*dx+(py-y1)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-(x1+t*dx),py-(y1+t*dy))}
+function particle(x,y,color){world.particles.push({x,y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4-1,life:1,color})}
+function win(){if(won)return;won=true;sound(880,.22);const count=world.stars.filter(s=>s.got).length;best[level]=Math.max(best[level]||0,count);unlocked=Math.max(unlocked,Math.min(30,level+1));save();$('winStars').textContent='★'.repeat(count)+'☆'.repeat(3-count);$('winText').textContent='You collected '+count+' of 3 stars!';$('nextBtn').textContent=level===30?'PLAY AGAIN':'NEXT LEVEL';show('winOverlay')}
+function lose(){if(lost||won)return;lost=true;sound(150,.25,'sawtooth');show('loseOverlay')}
+function update(dt){
+ if(!world||!started||won||lost)return;world.time+=dt;const c=world.candy;c.vy+=.19*dt;c.vx*=Math.pow(.999,dt);c.vy*=Math.pow(.999,dt);c.x+=c.vx*dt;c.y+=c.vy*dt;
+ // Rope constraints keep the candy hanging from every uncut rope.
+ for(let k=0;k<3;k++)world.ropes.forEach(r=>{if(r.cut)return;const dx=c.x-r.anchor.x,dy=c.y-r.anchor.y,d=Math.hypot(dx,dy)||1;if(d>r.len){const excess=d-r.len;c.x-=dx/d*excess*.92;c.y-=dy/d*excess*.92;}});
+ if(c.x<18||c.x>W-18){c.x=clamp(c.x,18,W-18);c.vx*=-.55}
+ world.stars.forEach(st=>{if(!st.got&&Math.hypot(c.x-st.x,c.y-st.y)<25){st.got=true;sound(980,.09);for(let i=0;i<10;i++)particle(st.x,st.y,'#ffd95b');$('starCount').textContent=world.stars.filter(s=>s.got).length}});
+ world.obstacles.forEach(o=>{if(Math.hypot(c.x-o.x,c.y-o.y)<o.r+13){if(o.type==='spike')lose();else{const dx=c.x-o.x,dy=c.y-o.y,d=Math.hypot(dx,dy)||1;c.x=o.x+dx/d*(o.r+14);c.y=o.y+dy/d*(o.r+14);c.vx+=dx/d*3;c.vy+=dy/d*3;sound(260,.05)}}});
+ const m=world.mouth;if(Math.hypot(c.x-m.x,c.y-m.y)<m.r+10){win()}
+ if(c.y>H+50||c.y< -50)lose();
+ world.particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.04*dt;p.life-=.025*dt});world.particles=world.particles.filter(p=>p.life>0);
+}
+function drawStar(x,y,r,phase){ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(world.time*.04+phase)*.12);ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.43:r;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}ctx.closePath();ctx.fillStyle='#ffdc62';ctx.shadowColor='#ffcf42';ctx.shadowBlur=15;ctx.fill();ctx.strokeStyle='#fff2b5';ctx.lineWidth=1.5;ctx.stroke();ctx.restore()}
+function draw(){
+ if(!world)return;ctx.clearRect(0,0,W,H);
+ // dotted sky
+ for(let i=0;i<30;i++){const x=(i*83+23)%W,y=(i*137+39)%(H*.72);ctx.fillStyle='rgba(210,225,255,.16)';ctx.beginPath();ctx.arc(x,y,(i%3)*.55+1,0,TAU);ctx.fill()}
+ // subtle stage floor
+ const grd=ctx.createLinearGradient(0,H*.7,0,H);grd.addColorStop(0,'rgba(41,62,103,0)');grd.addColorStop(1,'rgba(46,68,108,.42)');ctx.fillStyle=grd;ctx.fillRect(0,H*.7,W,H*.3);
+ const c=world.candy;
+ world.ropes.forEach(r=>{if(r.cut){ctx.strokeStyle='rgba(255,255,255,.16)';ctx.setLineDash([4,7])}else{ctx.strokeStyle='#e8d8b4';ctx.setLineDash([])}ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(r.anchor.x,r.anchor.y);ctx.lineTo(c.x,c.y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#ffe6b7';ctx.beginPath();ctx.arc(r.anchor.x,r.anchor.y,5,0,TAU);ctx.fill()});
+ world.stars.forEach(st=>{if(!st.got)drawStar(st.x,st.y,13,st.phase)});
+ world.obstacles.forEach(o=>{ctx.save();ctx.translate(o.x,o.y);if(o.type==='spike'){ctx.fillStyle='#ff657c';ctx.shadowColor='#ff657c';ctx.shadowBlur=12;ctx.beginPath();for(let i=0;i<12;i++){const a=i*TAU/12,r=i%2?o.r*.72:o.r;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill()}else{ctx.fillStyle='#66c8ff';ctx.shadowColor='#66c8ff';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(0,0,o.r,0,TAU);ctx.fill();ctx.strokeStyle='#d8f7ff';ctx.lineWidth=3;ctx.stroke()}ctx.restore()});
+ // creature at goal
+ const m=world.mouth;ctx.save();ctx.translate(m.x,m.y);ctx.fillStyle='#74d9b4';ctx.shadowColor='#42d7b0';ctx.shadowBlur=17;ctx.beginPath();ctx.arc(0,0,31,0,TAU);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#173d48';ctx.beginPath();ctx.ellipse(0,8,14,11,0,0,TAU);ctx.fill();ctx.fillStyle='white';ctx.beginPath();ctx.arc(-10,-8,6,0,TAU);ctx.arc(10,-8,6,0,TAU);ctx.fill();ctx.fillStyle='#182a44';ctx.beginPath();ctx.arc(-9,-8,2.5,0,TAU);ctx.arc(11,-8,2.5,0,TAU);ctx.fill();ctx.restore();
+ // candy and wrapper
+ ctx.save();ctx.translate(c.x,c.y);ctx.rotate(world.time*.015+c.vx*.025);ctx.fillStyle='#ff8b9f';ctx.beginPath();ctx.moveTo(-11,-5);ctx.lineTo(-23,-13);ctx.lineTo(-20,0);ctx.lineTo(-23,13);ctx.lineTo(-10,6);ctx.fill();ctx.beginPath();ctx.moveTo(11,-5);ctx.lineTo(23,-13);ctx.lineTo(20,0);ctx.lineTo(23,13);ctx.lineTo(10,6);ctx.fill();const cg=ctx.createRadialGradient(-5,-7,2,0,0,18);cg.addColorStop(0,'#fff4df');cg.addColorStop(.55,'#ffc9dc');cg.addColorStop(1,'#f47d9b');ctx.fillStyle=cg;ctx.shadowColor='#ff9bb7';ctx.shadowBlur=17;ctx.beginPath();ctx.arc(0,0,14,0,TAU);ctx.fill();ctx.restore();
+ world.particles.forEach(p=>{ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,3*p.life,0,TAU);ctx.fill();ctx.globalAlpha=1});
+ // touch hint on first level
+ if(level===1&&world.ropes.some(r=>!r.cut)){ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillText('SWIPE A ROPE TO CUT IT',W/2,H*.09)}
+}
+function loop(t){const dt=Math.min(2.2,(t-last)/16.67||1);last=t;update(dt);draw();raf=requestAnimationFrame(loop)}
+function coords(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+canvas.addEventListener('pointerdown',e=>{if(!started||won||lost)return;const p=coords(e);swipe=p;canvas.setPointerCapture(e.pointerId);cutAt(p.x,p.y)});
+canvas.addEventListener('pointermove',e=>{if(!swipe)return;const p=coords(e);cutAt(p.x,p.y);swipe=p});
+canvas.addEventListener('pointerup',()=>swipe=null);canvas.addEventListener('pointercancel',()=>swipe=null);
+$('playBtn').onclick=()=>loadLevel(1);$('restartBtn').onclick=()=>loadLevel(level);$('primary').onclick=()=>loadLevel(level);
+$('levelsBtn').onclick=()=>{levelButtons();show('levelOverlay')};$('closeLevels').onclick=()=>hideAll();
+$('nextBtn').onclick=()=>loadLevel(level===30?1:level+1);$('replayBtn').onclick=()=>loadLevel(level);$('tryBtn').onclick=()=>loadLevel(level);$('levelListBtn').onclick=()=>{levelButtons();show('levelOverlay')};
+resize();layoutWorld();draw();
+})();
+</script>
+</body></html>
