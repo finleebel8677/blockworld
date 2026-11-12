@@ -1,1 +1,1 @@
-{"name":"Candy Swing","short_name":"Candy Swing","start_url":"./","display":"standalone","background_color":"#10182d","theme_color":"#10182d","icons":[]}
+{"name":"Candy Swing","short_name":"Candy Swing","start_url":"./","scope":"./","display":"standalone","background_color":"#10182d","theme_color":"#10182d","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
