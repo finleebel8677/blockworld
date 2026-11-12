@@ -60,7 +60,7 @@ function layoutWorld(keep=false){
  world={anchors,candy,mouth,stars,ropes:anchors.map((a,i)=>({anchor:a,len:Math.hypot(candy.x-a.x,candy.y-a.y),cut:false,phase:i})),obstacles:[],particles:[],time:0,trail:[],level};
  if(level>=4){world.obstacles.push({x:W*.5,y:H*.59,r:level%2?21:26,type:'spike'});}
  if(level>=7){world.obstacles.push({x:W*(level%2?.3:.7),y:H*.42,r:16,type:'bumper'});}
- world.ropes.forEach(r=>{r.len=Math.hypot(candy.x-r.anchor.x,candy.y-r.anchor.y)*1.025});
+ world.ropes.forEach(r=>{r.len=Math.hypot(candy.x-r.anchor.x,candy.y-r.anchor.y)});world.swing=null;world.freeVX=0;world.freeVY=0;
 }
 function loadLevel(n){level=clamp(n,1,30);won=lost=false;started=true;$('levelNo').textContent=level;$('starCount').textContent='0';$('message').textContent='Swipe across a rope to snip it.';hideAll();layoutWorld();draw();if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
 function hideAll(){document.querySelectorAll('.overlay').forEach(x=>x.classList.remove('show'))}
@@ -68,24 +68,50 @@ function show(id){hideAll();$(id).classList.add('show')}
 function save(){localStorage.setItem('cs-unlocked',String(unlocked));localStorage.setItem('cs-stars',JSON.stringify(best))}
 function levelButtons(){const box=$('levelSelect');box.innerHTML='';for(let i=1;i<=30;i++){const b=document.createElement('button');b.textContent=i+(best[i]?' ★':'');b.className=(i>unlocked?'locked ':'')+(best[i]?'done':'');b.disabled=i>unlocked;b.onclick=()=>loadLevel(i);box.appendChild(b)}}
 function sound(freq=550,dur=.08,type='sine'){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.07,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+dur);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+dur)}catch(e){}}
-function cutAt(x,y){if(!world||won||lost)return;let nearest=null,dist=18;world.ropes.forEach((r,i)=>{if(r.cut)return;const d=pointSeg(x,y,r.anchor.x,r.anchor.y,world.candy.x,world.candy.y);if(d<dist){dist=d;nearest=r}});if(nearest){nearest.cut=true;sound(780,.07,'triangle');for(let i=0;i<7;i++)particle((nearest.anchor.x+world.candy.x)/2,(nearest.anchor.y+world.candy.y)/2,'#bceeff')}}
+function currentVelocity(){const sw=world&&world.swing;if(!sw)return{x:world?world.freeVX:0,y:world?world.freeVY:0};return{x:sw.rope.len*Math.cos(sw.theta)*sw.omega,y:-sw.rope.len*Math.sin(sw.theta)*sw.omega}}
+function cutAt(x,y){if(!world||won||lost)return;let nearest=null,dist=23;world.ropes.forEach(r=>{if(r.cut)return;const d=pointSeg(x,y,r.anchor.x,r.anchor.y,world.candy.x,world.candy.y);if(d<dist){dist=d;nearest=r}});if(nearest){const v=currentVelocity();world.freeVX=v.x;world.freeVY=v.y;nearest.cut=true;sound(780,.07,'triangle');for(let i=0;i<7;i++)particle((nearest.anchor.x+world.candy.x)/2,(nearest.anchor.y+world.candy.y)/2,'#bceeff')}}
 function pointSeg(px,py,x1,y1,x2,y2){const dx=x2-x1,dy=y2-y1,t=clamp(((px-x1)*dx+(py-y1)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-(x1+t*dx),py-(y1+t*dy))}
 function particle(x,y,color){world.particles.push({x,y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4-1,life:1,color})}
 function win(){if(won)return;won=true;sound(880,.22);const count=world.stars.filter(s=>s.got).length;best[level]=Math.max(best[level]||0,count);unlocked=Math.max(unlocked,Math.min(30,level+1));save();$('winStars').textContent='★'.repeat(count)+'☆'.repeat(3-count);$('winText').textContent='You collected '+count+' of 3 stars!';$('nextBtn').textContent=level===30?'PLAY AGAIN':'NEXT LEVEL';show('winOverlay')}
 function lose(){if(lost||won)return;lost=true;sound(150,.25,'sawtooth');show('loseOverlay')}
 function update(dt){
- if(!world||!started||won||lost)return;world.time+=dt;const c=world.candy;
- // Verlet pendulum: gravity creates tangential motion, while the active rope
- // constrains the candy to a circular arc. Cutting it releases the candy.
- const step=Math.min(dt,2.2);const vx=(c.x-c.px)*.995,vy=(c.y-c.py)*.995;c.px=c.x;c.py=c.y;c.x+=vx;c.y+=vy+.17*step*step;
- const activeRope=world.ropes.find(r=>!r.cut);
- if(activeRope){for(let k=0;k<4;k++){const dx=c.x-activeRope.anchor.x,dy=c.y-activeRope.anchor.y,d=Math.hypot(dx,dy)||1;const correction=d-activeRope.len;c.x-=dx/d*correction;c.y-=dy/d*correction;}
- // Remove only radial velocity so the candy keeps swinging along the arc.
- const dx=c.x-activeRope.anchor.x,dy=c.y-activeRope.anchor.y,d=Math.hypot(dx,dy)||1;const nx=dx/d,ny=dy/d;const rv=(c.x-c.px)*nx+(c.y-c.py)*ny;c.px+=nx*rv;c.py+=ny*rv;}
- if(c.x<18||c.x>W-18){c.x=clamp(c.x,18,W-18);c.px=c.x-(c.px-c.x)*-.45}
+ if(!world||!started||won||lost)return;
+ world.time+=dt;
+ const c=world.candy;
+ const activeIndex=world.ropes.findIndex(r=>!r.cut);
+ if(activeIndex!==(world.swing?world.swing.index:-1)){
+  const v=currentVelocity();
+  if(activeIndex>=0){
+   const r=world.ropes[activeIndex],dx=c.x-r.anchor.x,dy=c.y-r.anchor.y;
+   r.len=Math.max(35,Math.hypot(dx,dy));
+   const theta=Math.atan2(dx,dy);
+   const omega=(v.x*Math.cos(theta)-v.y*Math.sin(theta))/r.len;
+   world.swing={index:activeIndex,rope:r,theta,omega};
+  }else{world.swing=null;world.freeVX=v.x;world.freeVY=v.y;}
+ }
+ const step=Math.min(dt,2.5),substeps=Math.max(1,Math.ceil(step/.5)),h=step/substeps;
+ if(world.swing){
+  const sw=world.swing,L=sw.rope.len;
+  for(let i=0;i<substeps;i++){
+   sw.omega+=-(.42/L)*Math.sin(sw.theta)*h;
+   sw.omega*=Math.pow(.9992,h);
+   sw.theta+=sw.omega*h;
+  }
+  c.x=sw.rope.anchor.x+L*Math.sin(sw.theta);
+  c.y=sw.rope.anchor.y+L*Math.cos(sw.theta);
+  world.freeVX=L*Math.cos(sw.theta)*sw.omega;
+  world.freeVY=-L*Math.sin(sw.theta)*sw.omega;
+ }else{
+  for(let i=0;i<substeps;i++){
+   world.freeVY+=.42*h;
+   world.freeVX*=Math.pow(.9995,h);world.freeVY*=Math.pow(.9995,h);
+   c.x+=world.freeVX*h;c.y+=world.freeVY*h;
+  }
+ }
+ if(c.x<18||c.x>W-18){c.x=clamp(c.x,18,W-18);world.freeVX*=-.48;if(world.swing){world.swing.omega*=-.48;}}
  world.stars.forEach(st=>{if(!st.got&&Math.hypot(c.x-st.x,c.y-st.y)<25){st.got=true;sound(980,.09);for(let i=0;i<10;i++)particle(st.x,st.y,'#ffd95b');$('starCount').textContent=world.stars.filter(s=>s.got).length}});
- world.obstacles.forEach(o=>{if(Math.hypot(c.x-o.x,c.y-o.y)<o.r+13){if(o.type==='spike')lose();else{const dx=c.x-o.x,dy=c.y-o.y,d=Math.hypot(dx,dy)||1;c.x=o.x+dx/d*(o.r+14);c.y=o.y+dy/d*(o.r+14);c.vx+=dx/d*3;c.vy+=dy/d*3;sound(260,.05)}}});
- const m=world.mouth;if(Math.hypot(c.x-m.x,c.y-m.y)<m.r+10){win()}
+ world.obstacles.forEach(o=>{if(Math.hypot(c.x-o.x,c.y-o.y)<o.r+13){if(o.type==='spike')lose();else{const dx=c.x-o.x,dy=c.y-o.y,d=Math.hypot(dx,dy)||1;c.x=o.x+dx/d*(o.r+14);c.y=o.y+dy/d*(o.r+14);world.freeVX+=dx/d*3;world.freeVY+=dy/d*3;sound(260,.05)}}});
+ const m=world.mouth;if(Math.hypot(c.x-m.x,c.y-m.y)<m.r+10)win();
  if(c.y>H+50||c.y< -50)lose();
  world.particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.04*dt;p.life-=.025*dt});world.particles=world.particles.filter(p=>p.life>0);
 }
