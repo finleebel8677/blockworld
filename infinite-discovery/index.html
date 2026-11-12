@@ -53,7 +53,7 @@ body{touch-action:pan-x pan-y}
 @keyframes discoveryPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.15) rotate(-12deg);filter:brightness(2)}65%{transform:translate(-50%,-50%) scale(1.22)}100%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:brightness(1)}}
 @keyframes resultCelebrate{0%{transform:translate(-50%,-10px) scale(.7);opacity:0}65%{transform:translate(-50%,5px) scale(1.08);opacity:1}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 #result.celebrate{animation:resultCelebrate .5s cubic-bezier(.2,1.5,.4,1) both;border-color:#ffe08a;box-shadow:0 0 24px #ffd36e55,0 8px 28px #0006}
-@media(min-width:761px){.ingredient-drawer.expanded{height:min(58vh,560px)}.inventory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-content:start}.inventory .tile{min-height:58px}.inventory .tile .name{text-align:left}}
+@media(min-width:761px){.ingredient-drawer.expanded{height:min(58vh,560px)}.inventory{display:flex;flex-direction:column}.inventory .tile{min-height:48px}.inventory .tile .name{text-align:left}}
 @media(max-width:760px){.top{padding:8px 10px}.tabs{top:51px;left:9px}.craftpanel>.panelhead{top:91px;left:12px}.drop-hint{top:115px;left:12px;font-size:9px}.placed{min-width:72px;padding:7px 8px}.placed .emoji{font-size:27px}.placed .name{font-size:10px}#result{top:138px}.ingredient-drawer.expanded{height:min(58vh,490px)}}
 </style></head><body><main class="app">
 <header class="top"><div class="brand"><div class="logo">✨</div><div><h1>INFINITE DISCOVERY</h1><small>Combine anything. Discover everything.</small></div></div><div class="stats"><div class="stat"><b id="total">4</b>found</div><div class="stat"><b id="firsts">0</b>new finds</div></div></header>
