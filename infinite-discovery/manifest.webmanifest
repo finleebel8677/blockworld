@@ -1,0 +1,9 @@
+{
+  "name": "Infinite Discovery",
+  "short_name": "Discovery",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d1422",
+  "theme_color": "#101827",
+  "icons": []
+}
