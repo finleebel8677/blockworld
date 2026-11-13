@@ -389,23 +389,38 @@ $('backupToggle').addEventListener('click',()=>{$('backupTools').hidden=!$('back
 $('exportSave').addEventListener('click',()=>{save();$('saveCode').value='CRITTERCOVE1:'+btoa(unescape(encodeURIComponent(JSON.stringify(s))));$('saveCode').focus();$('saveCode').select();say('Backup code created. Copy it and keep it safe.')});
 $('copySave').addEventListener('click',async()=>{const t=$('saveCode');if(!t.value){say('Create a backup code first.');return}try{await navigator.clipboard.writeText(t.value);say('Backup copied!')}catch(e){t.focus();t.select();say('Select and copy the backup code.')}});
 $('importSave').addEventListener('click',()=>{try{
- let raw=$('saveCode').value.trim().replace(/^["'`]|["'`]$/g,'').replace(/\s+/g,'');
+ let raw=$('saveCode').value.trim().replace(/^\uFEFF/,'');
+ raw=raw.replace(/^\x60{3}(?:text|txt)?/i,'').replace(/\x60{3}$/,'').trim();
+ raw=raw.replace(/^["'“”]|["'“”]$/g,'').replace(/\s+/g,'');
  let payload=raw;
- if(payload.startsWith('CRITTERCOVE1:'))payload=payload.slice(13);
- else if(payload.startsWith('CRITTERCOVE1'))payload=payload.slice(11).replace(/^:/,'');
- payload=payload.replace(/-/g,'+').replace(/_/g,'/');
- while(payload.length%4)payload+='=';
- let restored;
- try{restored=JSON.parse(decodeURIComponent(escape(atob(payload))))}
- catch(first){try{restored=JSON.parse(atob(payload))}catch(second){throw new Error('Could not decode backup text')}}
- if(!restored||typeof restored!=='object'||Array.isArray(restored)||!restored.owned||typeof restored.owned!=='object'||!restored.up||typeof restored.up!=='object'||!Array.isArray(restored.habitats))throw new Error('Backup data is incomplete');
+ if(payload.startsWith('CRITTERCOVE1:'))payload=payload.slice('CRITTERCOVE1:'.length);
+ else if(payload.startsWith('CRITTERCOVE1'))payload=payload.slice('CRITTERCOVE1'.length).replace(/^:/,'');
+ let restored=null,decodeError=null;
+ const candidates=[payload,payload.replace(/-/g,'+').replace(/_/g,'/')];
+ for(let candidate of candidates){try{
+   candidate=candidate.replace(/[^A-Za-z0-9+/=_-]/g,'');
+   candidate=candidate.replace(/-/g,'+').replace(/_/g,'/');
+   candidate=candidate.replace(/=+$/,'');
+   if(!candidate.length)continue;
+   while(candidate.length%4)candidate+='=';
+   const binary=atob(candidate);
+   const bytes=Uint8Array.from(binary,ch=>ch.charCodeAt(0));
+   let decoded;
+   try{decoded=new TextDecoder('utf-8',{fatal:true}).decode(bytes)}
+   catch(utfError){decoded=decodeURIComponent(escape(binary))}
+   restored=JSON.parse(decoded);
+   if(restored&&typeof restored==='object'&&!Array.isArray(restored))break;
+   restored=null;
+ }catch(err){decodeError=err}}
+ if(!restored&&raw.startsWith('{')){try{restored=JSON.parse(raw)}catch(err){decodeError=err}}
+ if(!restored||typeof restored!=='object'||Array.isArray(restored)||!restored.owned||typeof restored.owned!=='object'||Array.isArray(restored.owned)||!restored.up||typeof restored.up!=='object'||Array.isArray(restored.up)||!Array.isArray(restored.habitats))throw new Error('This does not look like a complete Critter Cove backup. Check that the entire code was copied.');
  if(!confirm('Restore this backup? It will replace the progress currently saved on this device.'))return;
- const safe={...fresh(),...restored,up:{...fresh().up,...restored.up},researchUp:{...fresh().researchUp,...(restored.researchUp||{})},habitats:Array.from({length:8},(_,i)=>!!restored.habitats[i]),owned:restored.owned};
+ const defaults=fresh();
+ const safe={...defaults,...restored,up:{...defaults.up,...restored.up},researchUp:{...defaults.researchUp,...(restored.researchUp||{})},habitats:Array.from({length:8},(_,i)=>!!restored.habitats[i]),owned:restored.owned};
  safe.habitats[0]=true;
  localStorage.setItem('critterCoveSave',JSON.stringify(safe));
  location.reload();
- }catch(e){console.error('Critter Cove backup restore:',e);say(e.message==='Backup data is incomplete'?'This backup is missing required game data.':'Could not read that code. Paste the entire backup code, including CRITTERCOVE1:.')}});
-$('eventHatch').addEventListener('click',()=>{if(s.coins<2500)return;const pool=currentEventCreatures(),weights={Rare:65,Epic:27,Legendary:7,Mythic:1};s.coins-=2500;let roll=Math.random()*pool.reduce((a,x)=>a+weights[x.rarity],0),found=pool[0];for(const x of pool){roll-=weights[x.rarity];if(roll<=0){found=x;break}}const before=s.owned[found.id]||0;s.owned[found.id]=before+1;if(before)s.essence+=found.rarity==='Rare'?4:found.rarity==='Epic'?8:found.rarity==='Legendary'?18:40;pendingCreature=found;$('revealType').textContent=before?'EVENT DUPLICATE':'LIMITED EVENT DISCOVERY!';$('reveal').querySelector('.reveal-card').className='reveal-card rarity-'+found.rarity;$('revealArt').textContent=found.icon;$('revealArt').style.setProperty('--creature-color',found.color);$('revealName').textContent=found.name;$('revealRarity').textContent=found.rarity;$('revealRarity').className='rarity '+found.rarity;$('revealDesc').textContent=found.desc;$('reveal').classList.add('show');render();save()});
+ }catch(e){console.error('Critter Cove backup restore:',e);say(e.message==='This does not look like a complete Critter Cove backup. Check that the entire code was copied.'?e.message:'Could not read that code. Paste the entire backup code, including CRITTERCOVE1:. Your current save has not been changed.')}});$('eventHatch').addEventListener('click',()=>{if(s.coins<2500)return;const pool=currentEventCreatures(),weights={Rare:65,Epic:27,Legendary:7,Mythic:1};s.coins-=2500;let roll=Math.random()*pool.reduce((a,x)=>a+weights[x.rarity],0),found=pool[0];for(const x of pool){roll-=weights[x.rarity];if(roll<=0){found=x;break}}const before=s.owned[found.id]||0;s.owned[found.id]=before+1;if(before)s.essence+=found.rarity==='Rare'?4:found.rarity==='Epic'?8:found.rarity==='Legendary'?18:40;pendingCreature=found;$('revealType').textContent=before?'EVENT DUPLICATE':'LIMITED EVENT DISCOVERY!';$('reveal').querySelector('.reveal-card').className='reveal-card rarity-'+found.rarity;$('revealArt').textContent=found.icon;$('revealArt').style.setProperty('--creature-color',found.color);$('revealName').textContent=found.name;$('revealRarity').textContent=found.rarity;$('revealRarity').className='rarity '+found.rarity;$('revealDesc').textContent=found.desc;$('reveal').classList.add('show');render();save()});
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+b.dataset.view))});
 function tick(){const now=Date.now(),elapsed=Math.min(3600*8,Math.max(0,(now-(s.last||now))/1000));if(elapsed>0){const earned=income()*elapsed;if(earned>0){addCoins(earned);s.last=now;save()}}render()}
 const away=Math.min(8*3600,Math.max(0,(Date.now()-(s.last||Date.now()))/1000));if(away>2&&income()>0){const earned=income()*away;addCoins(earned);say('Welcome back! You earned '+fmt(earned)+' shells while away.')}
