@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>Turbo Kart</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10251c;font-family:ui-rounded,system-ui,-apple-system,sans-serif;touch-action:none}#game{position:fixed;inset:0;width:100%;height:100%;display:block}.hud{position:fixed;inset:env(safe-area-inset-top) 0 auto 0;display:flex;justify-content:space-between;align-items:flex-start;padding:12px 16px;pointer-events:none;color:white;text-shadow:0 2px 5px #102016}.panel{background:linear-gradient(145deg,#173d34ed,#0b211de8);border:1px solid #ffffff38;border-radius:14px;padding:8px 13px;box-shadow:0 5px 18px #06150c77;min-width:74px}.small{font-size:10px;letter-spacing:1.5px;color:#b6d5c7;font-weight:800}.big{font-size:23px;font-weight:950;line-height:1.2}.right{display:flex;gap:8px}.controls{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:space-between;padding:0 16px;pointer-events:none}.steer{width:min(30vw,150px);height:75px;border-radius:20px;border:1px solid #ffffff55;background:linear-gradient(160deg,#ffffff2b,#0b211d99);box-shadow:0 5px 20px #0005;display:grid;place-items:center;color:#fff;font-size:30px;font-weight:900;pointer-events:auto;user-select:none;-webkit-user-select:none;touch-action:none}.steer.active{background:#e4a832b8;border-color:#ffe39b;transform:scale(.97)}.hint{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);color:#fff;background:#0b211dc9;padding:7px 12px;border-radius:20px;font-size:11px;letter-spacing:.5px;white-space:nowrap;pointer-events:none}.overlay{position:fixed;inset:0;display:grid;place-items:center;background:#06150dc9;padding:20px}.modal{width:min(420px,94vw);text-align:center;background:linear-gradient(155deg,#205346,#102a25);border:1px solid #b4e4c466;border-radius:24px;padding:25px 22px;color:white;box-shadow:0 18px 70px #0009}.modal h1{font-size:34px;line-height:1;margin:5px 0 10px;font-style:italic;font-weight:1000;letter-spacing:-1px}.modal p{color:#c2ded1;line-height:1.5;font-size:14px}.btn{border:0;border-radius:14px;padding:14px 28px;background:linear-gradient(#ffdb72,#ee9f2d);color:#38220b;font-weight:1000;font-size:16px;box-shadow:0 4px 0 #a85d1d;width:100%;margin-top:10px}.hidden{display:none!important}.tag{color:#ffdc83;font-weight:900;letter-spacing:2px;font-size:11px}
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10251c;font-family:ui-rounded,system-ui,-apple-system,sans-serif;touch-action:none}#game{position:fixed;inset:0;width:100%;height:100%;display:block}.hud{position:fixed;inset:env(safe-area-inset-top) 0 auto 0;display:flex;justify-content:space-between;align-items:flex-start;padding:12px 16px;pointer-events:none;color:white;text-shadow:0 2px 5px #102016}.panel{background:linear-gradient(145deg,#173d34ed,#0b211de8);border:1px solid #ffffff38;border-radius:14px;padding:8px 13px;box-shadow:0 5px 18px #06150c77;min-width:74px}.small{font-size:10px;letter-spacing:1.5px;color:#b6d5c7;font-weight:800}.big{font-size:23px;font-weight:950;line-height:1.2}.right{display:flex;gap:8px}#touchZones{position:fixed;inset:0;z-index:2;display:flex;touch-action:none;pointer-events:none}#touchZones:before,#touchZones:after{content:"";width:50%;height:100%;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none}.hint{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);color:#fff;background:#0b211dc9;padding:7px 12px;border-radius:20px;font-size:11px;letter-spacing:.5px;white-space:nowrap;pointer-events:none}.overlay{position:fixed;inset:0;display:grid;place-items:center;background:#06150dc9;padding:20px}.modal{width:min(420px,94vw);text-align:center;background:linear-gradient(155deg,#205346,#102a25);border:1px solid #b4e4c466;border-radius:24px;padding:25px 22px;color:white;box-shadow:0 18px 70px #0009}.modal h1{font-size:34px;line-height:1;margin:5px 0 10px;font-style:italic;font-weight:1000;letter-spacing:-1px}.modal p{color:#c2ded1;line-height:1.5;font-size:14px}.btn{border:0;border-radius:14px;padding:14px 28px;background:linear-gradient(#ffdb72,#ee9f2d);color:#38220b;font-weight:1000;font-size:16px;box-shadow:0 4px 0 #a85d1d;width:100%;margin-top:10px}.hidden{display:none!important}.tag{color:#ffdc83;font-weight:900;letter-spacing:2px;font-size:11px}
 @media(orientation:portrait){.rotate{display:grid!important}.hud,.controls,.hint{display:none}}
 .rotate{display:none;position:fixed;inset:0;background:#10251c;color:white;place-items:center;text-align:center;padding:30px;z-index:20}
 </style></head><body><canvas id="game"></canvas>
 <div class="hud"><div class="panel"><div class="small">LAP</div><div class="big" id="lap">1/3</div></div><div class="right"><div class="panel"><div class="small">POSITION</div><div class="big" id="pos">6TH</div></div><div class="panel"><div class="small">SPEED</div><div class="big"><span id="speed">0</span><small> km/h</small></div></div><div class="panel"><div class="small">COINS</div><div class="big" id="coins">0</div></div></div></div>
-<div class="hint" id="hint">HOLD LEFT OR RIGHT TO STEER</div><div class="controls"><div class="steer" id="left">◀</div><div class="steer" id="right">▶</div></div>
+<div class="hint" id="hint">HOLD LEFT OR RIGHT HALF OF SCREEN TO STEER</div><div id="touchZones" aria-hidden="true"></div>
 <div class="overlay" id="menu"><div class="modal"><div class="tag">TURBO KART RACING</div><h1 id="title">TURBO KART</h1><p id="desc">Hit the track. Your kart accelerates automatically — hold the left or right side of the screen to steer through the turns and race past the pack.</p><button class="btn" id="start">START RACE</button></div></div>
 <div class="rotate"><div><div style="font-size:48px">📱 ↻</div><h2>Rotate your phone</h2><p>Turbo Kart is best played horizontally.</p></div></div>
 <script>
@@ -16,37 +16,39 @@ function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight
 const $=id=>document.getElementById(id);let running=false,finished=false,angle=0,lateral=0,speed=0,lap=1,coins=0,elapsed=0,steer=0,last=0,raf=0,playerColor='#e84b36';
 const ai=Array.from({length:5},(_,i)=>({a:(i+1)*.12,off:(i%2?-.25:.25),v:.00145+Math.random()*.00025,color:['#3d9de2','#f4c342','#a66be0','#f1f1e9','#38b77a'][i],laps:0}));
 const TAU=Math.PI*2;
-function dims(){return {cx:W*.5,cy:H*.51,rx:Math.min(W*.34,H*.62),ry:Math.min(H*.31,W*.22),thick:Math.min(75,Math.max(48,H*.14))}}
+
+function dims(){return {cx:W*.5,cy:H*.52,rx:Math.min(W*.39,H*.72),ry:Math.min(H*.40,W*.27),thick:Math.min(82,Math.max(58,H*.19))}}
 function pathPoint(a,off=0){const d=dims(),rx=d.rx+off,ry=d.ry+off*.7;return {x:d.cx+Math.cos(a)*rx,y:d.cy+Math.sin(a)*ry,rot:Math.atan2(Math.cos(a)*ry,-Math.sin(a)*rx)}}
 function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
-function drawTrack(){const d=dims();ctx.fillStyle='#4d9b53';ctx.fillRect(0,0,W,H);
- // textured infield and grass strokes
- for(let i=0;i<180;i++){let x=(i*137.5)%W,y=(i*83.7)%H;ctx.strokeStyle=i%2?'#ffffff0a':'#153f2620';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+8,y-3);ctx.stroke()}
- ctx.fillStyle='#347a43';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick*1.2,d.ry+d.thick*1.2,0,0,TAU);ctx.fill();
- ctx.fillStyle='#b6b7a7';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick,d.ry+d.thick*.82,0,0,TAU);ctx.fill();
- ctx.fillStyle='#343b3b';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick*.83,d.ry+d.thick*.65,0,0,TAU);ctx.fill();
- ctx.fillStyle='#287b43';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx-d.thick*.83,d.ry-d.thick*.9,0,0,TAU);ctx.fill();
- // racing surface subtle seams
- ctx.strokeStyle='#ffffff18';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx,d.ry,0,0,TAU);ctx.stroke();
- // curbs around outer and inner edges
- for(let edge of [1,-1]){ctx.save();ctx.translate(d.cx,d.cy);ctx.rotate(0);ctx.strokeStyle='#f5f0df';ctx.lineWidth=10;ctx.setLineDash([18,18]);ctx.beginPath();ctx.ellipse(0,0,d.rx+edge*d.thick*.43,d.ry+edge*d.thick*.35,0,0,TAU);ctx.stroke();ctx.strokeStyle='#d94b43';ctx.lineDashOffset=18;ctx.beginPath();ctx.ellipse(0,0,d.rx+edge*d.thick*.43,d.ry+edge*d.thick*.35,0,0,TAU);ctx.stroke();ctx.restore()}
- // start line
- const p=pathPoint(-Math.PI/2);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(0);for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#fff':'#222';ctx.fillRect(-d.thick*.43+i*9,-7,9,14)}ctx.restore();
- // grandstands
- for(let side of [-1,1]){let x=d.cx+side*(d.rx+d.thick+24),y=d.cy-12;ctx.save();ctx.translate(x,y);ctx.rotate(side*-.08);rounded(-30,-d.ry*.58,60,d.ry*1.1,9);ctx.fillStyle='#59636a';ctx.fill();for(let j=0;j<7;j++){ctx.fillStyle=['#e85c50','#f3cb61','#e7e8e1'][j%3];ctx.fillRect(-25+j*7,-d.ry*.55,5,d.ry*1.03)}ctx.restore()}
- // trees and decorative shrubs
- for(let i=0;i<30;i++){let a=i/30*TAU,x=d.cx+Math.cos(a)*(d.rx+d.thick+50),y=d.cy+Math.sin(a)*(d.ry+d.thick*.8+28);tree(x,y,10+(i%3)*2)}
+function drawTrack(){
+ const d=dims();let bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#244c32');bg.addColorStop(1,'#102b20');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ for(let i=0;i<260;i++){let x=(i*157.3)%W,y=(i*91.9)%H;ctx.strokeStyle=i%2?'#b9d58a12':'#071c1028';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+12,y-5);ctx.stroke()}
+ ctx.fillStyle='#18241f';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick*1.22,d.ry+d.thick*.95,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#d9d5c5';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick,d.ry+d.thick*.78,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#30383a';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick*.88,d.ry+d.thick*.68,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#24623b';ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx-d.thick*.82,d.ry-d.thick*.9,0,0,TAU);ctx.fill();
+ ctx.save();ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+d.thick*.88,d.ry+d.thick*.68,0,0,TAU);ctx.clip();
+ for(let i=0;i<500;i++){let x=(i*83.17)%W,y=(i*47.31)%H;ctx.fillStyle=i%2?'#ffffff08':'#00000012';ctx.fillRect(x,y,2,2)}ctx.restore();
+ for(let edge of [1,-1]){ctx.strokeStyle='#f4f0df';ctx.lineWidth=12;ctx.setLineDash([22,22]);ctx.lineDashOffset=0;ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+edge*d.thick*.48,d.ry+edge*d.thick*.37,0,0,TAU);ctx.stroke();ctx.strokeStyle='#d94b43';ctx.lineDashOffset=22;ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx+edge*d.thick*.48,d.ry+edge*d.thick*.37,0,0,TAU);ctx.stroke()}ctx.setLineDash([]);
+ ctx.strokeStyle='#ffffff55';ctx.lineWidth=2;ctx.setLineDash([18,22]);ctx.beginPath();ctx.ellipse(d.cx,d.cy,d.rx,d.ry,0,0,TAU);ctx.stroke();ctx.setLineDash([]);
+ let p=pathPoint(-Math.PI/2);ctx.save();ctx.translate(p.x,p.y);for(let i=0;i<12;i++){ctx.fillStyle=i%2?'#fff':'#252a2b';ctx.fillRect(-36+i*6,-d.thick*.42,6,d.thick*.84)}ctx.restore();
+ ctx.fillStyle='#b9b39d';rounded(d.cx-34,d.cy-22,68,44,8);ctx.fill();ctx.fillStyle='#59615d';rounded(d.cx-29,d.cy-17,58,34,5);ctx.fill();
 }
-function tree(x,y,r){ctx.fillStyle='#173f2a66';ctx.beginPath();ctx.ellipse(x+3,y+5,r*1.3,r*.8,0,0,TAU);ctx.fill();ctx.fillStyle='#79553a';ctx.fillRect(x-2,y-2,4,10);ctx.fillStyle='#1c6638';ctx.beginPath();ctx.arc(x,y-4,r,0,TAU);ctx.fill();ctx.fillStyle='#318b49';ctx.beginPath();ctx.arc(x-3,y-7,r*.62,0,TAU);ctx.fill()}
-function kart(x,y,rot,color,isPlayer=false){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(2,5,17,11,0,0,TAU);ctx.fill();ctx.fillStyle='#17191c';for(let s of [-1,1])for(let q of [-1,1]){rounded(s*8-4,q*7-5,8,10,2);ctx.fill()}ctx.fillStyle=color;rounded(-13,-18,26,36,8);ctx.fill();ctx.fillStyle='#ffffff55';rounded(-9,-14,18,8,4);ctx.fill();ctx.fillStyle='#202a30';rounded(-8,-5,16,13,5);ctx.fill();ctx.fillStyle='#f9e6b1';rounded(-8,-17,16,4,2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(-10,14,7,3);ctx.fillRect(3,14,7,3);ctx.fillStyle='#15191b';rounded(-10,-23,20,7,3);ctx.fill();if(isPlayer){ctx.strokeStyle='#fff';ctx.lineWidth=2;rounded(-15,-20,30,42,9);ctx.stroke()}ctx.restore()}
-function draw(){ctx.clearRect(0,0,W,H);drawTrack();let d=dims();
- // inner infield decorations
- for(let i=0;i<9;i++){let a=i/9*TAU,x=d.cx+Math.cos(a)*(d.rx-d.thick*1.35),y=d.cy+Math.sin(a)*(d.ry-d.thick*1.4);tree(x,y,8)}
- // AI racers
+function tree(x,y,r){ctx.fillStyle='#07180d66';ctx.beginPath();ctx.ellipse(x+3,y+6,r*1.4,r,0,0,TAU);ctx.fill();ctx.fillStyle='#164f2b';ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.fillStyle='#39834b';ctx.beginPath();ctx.arc(x-r*.25,y-r*.3,r*.62,0,TAU);ctx.fill()}
+function kart(x,y,rot,color,isPlayer=false){
+ ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(3,7,20,34,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#15191c';for(let s of [-1,1]){rounded(s*11-4,-20,8,15,3);ctx.fill();rounded(s*11-4,10,8,15,3);ctx.fill()}
+ ctx.fillStyle='#aeb5b5';rounded(-13,-29,26,58,9);ctx.fill();ctx.fillStyle=color;rounded(-12,-28,24,55,8);ctx.fill();
+ ctx.fillStyle='#ffffff35';rounded(-9,-24,18,15,5);ctx.fill();ctx.fillStyle='#17252c';ctx.beginPath();ctx.moveTo(-9,-8);ctx.quadraticCurveTo(-8,-17,0,-18);ctx.quadraticCurveTo(8,-17,9,-8);ctx.lineTo(8,8);ctx.quadraticCurveTo(0,14,-8,8);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#9dc4d0';ctx.beginPath();ctx.moveTo(-7,-7);ctx.lineTo(7,-7);ctx.lineTo(6,1);ctx.lineTo(-6,1);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#26343a';ctx.fillRect(-8,11,16,5);ctx.fillStyle='#f8e6b7';ctx.fillRect(-9,-25,6,3);ctx.fillRect(3,-25,6,3);ctx.fillStyle='#f34e42';ctx.fillRect(-9,23,6,3);ctx.fillRect(3,23,6,3);
+ ctx.fillStyle='#d8d9d5';ctx.fillRect(-15,-22,3,9);ctx.fillRect(12,-22,3,9);ctx.fillRect(-15,13,3,9);ctx.fillRect(12,13,3,9);
+ if(isPlayer){ctx.strokeStyle='#fff';ctx.lineWidth=2;rounded(-15,-31,30,64,10);ctx.stroke()}ctx.restore()
+}
+function draw(){ctx.clearRect(0,0,W,H);drawTrack();let d=dims();for(let i=0;i<24;i++){let a=i/24*TAU,x=d.cx+Math.cos(a)*(d.rx+d.thick+23),y=d.cy+Math.sin(a)*(d.ry+d.thick*.76+18);tree(x,y,7+(i%3))}
  ai.forEach(k=>{let p=pathPoint(k.a,k.off*d.thick);kart(p.x,p.y,p.rot,k.color)});
  const p=pathPoint(angle,lateral*d.thick);kart(p.x,p.y,p.rot,playerColor,true);
- // start/finish gantry
- ctx.fillStyle='#20282a';ctx.fillRect(d.cx-4,d.cy-d.ry-d.thick-25,8,24);ctx.fillRect(d.cx-58,d.cy-d.ry-d.thick-26,116,7);ctx.fillStyle='#fff';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('TURBO CIRCUIT',d.cx,d.cy-d.ry-d.thick-32);
+ ctx.fillStyle='#fff';ctx.font='900 10px system-ui';ctx.textAlign='center';ctx.fillText('START / FINISH',d.cx,d.cy-d.ry-d.thick-17);
 }
 function ordinal(n){return n+(n===1?'ST':n===2?'ND':n===3?'RD':'TH')}
 function update(dt){if(!running)return;elapsed+=dt;const target=1.9;speed+=(target-speed)*Math.min(1,dt*.001);angle+=speed*dt*.00072;let steerPower=dt*.0018; lateral+=steer*steerPower;lateral*=Math.pow(.985,dt/16);lateral=Math.max(-.78,Math.min(.78,lateral));if(Math.abs(lateral)>.7)speed=Math.max(.75,speed-.0007*dt);
@@ -58,9 +60,13 @@ function update(dt){if(!running)return;elapsed+=dt;const target=1.9;speed+=(targ
 function frame(t){let dt=Math.min(40,t-last||16);last=t;update(dt);draw();if(running)raf=requestAnimationFrame(frame)}
 function start(){cancelAnimationFrame(raf);angle=0;lateral=0;speed=0;lap=1;elapsed=0;ai.forEach((k,i)=>{k.a=(i+1)*.12;k.laps=0});running=true;finished=false;$('menu').classList.add('hidden');$('hint').textContent='HOLD LEFT OR RIGHT TO STEER';last=performance.now();raf=requestAnimationFrame(frame)}
 $('start').addEventListener('click',start);
-function bind(id,val){const el=$(id);const on=e=>{e.preventDefault();steer=val;el.classList.add('active')},off=e=>{e.preventDefault();if(steer===val)steer=0;el.classList.remove('active')};el.addEventListener('pointerdown',on);['pointerup','pointercancel','pointerleave'].forEach(ev=>el.addEventListener(ev,off))}
-bind('left',-1);bind('right',1);
-document.addEventListener('visibilitychange',()=>{if(document.hidden){steer=0;document.querySelectorAll('.steer').forEach(x=>x.classList.remove('active'))}});
+const zones=$('touchZones');let activePointers=new Map();
+zones.addEventListener('pointerdown',e=>{if(!running)return;e.preventDefault();try{zones.setPointerCapture(e.pointerId)}catch(_){}activePointers.set(e.pointerId,e.clientX<W/2?-1:1);steer=[...activePointers.values()].reduce((x,y)=>x+y,0)},{passive:false});
+function release(e){activePointers.delete(e.pointerId);steer=activePointers.size?[...activePointers.values()].reduce((x,y)=>x+y,0):0}
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>zones.addEventListener(ev,release));
+zones.addEventListener('pointermove',e=>{if(!activePointers.has(e.pointerId))return;e.preventDefault();activePointers.set(e.pointerId,e.clientX<W/2?-1:1);steer=[...activePointers.values()].reduce((x,y)=>x+y,0)},{passive:false});
+['touchstart','touchmove','gesturestart','dblclick','contextmenu'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('visibilitychange',()=>{if(document.hidden){steer=0;}});
 draw();
 })();
 </script></body></html>
