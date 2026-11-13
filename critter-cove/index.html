@@ -261,7 +261,7 @@ const UPGRADES=[
 ];
 const RANK={Common:0,Uncommon:1,Rare:2,Epic:3,Legendary:4,Mythic:5,Celestial:6,Secret:7};
 const fresh=()=>({coins:0,essence:0,lifetime:0,runEarned:0,legacyStars:0,rebirths:0,taps:0,hatched:0,up:{tap:0,nest:0,incubator:0,luck:0,grove:0,birdhouse:0},owned:{},habitats:[true,false,false,false,false,false,false,false],activeHabitat:0,best:'',last:Date.now()});
-let s;try{s={...fresh(),...JSON.parse(localStorage.getItem('critterCoveSave')||'{}')};s.up={...fresh().up,...(s.up||{})};s.owned=s.owned||{};s.runEarned=Number(s.runEarned)||0;s.legacyStars=Number(s.legacyStars)||0;s.rebirths=Number(s.rebirths)||0;s.habitats=Array.from({length:8},(_,i)=>!!(s.habitats||[])[i]);s.habitats[0]=true;s.activeHabitat=Math.min(Number(s.activeHabitat)||0,HABITATS.length-1);if(!s.habitats[s.activeHabitat])s.activeHabitat=0}catch(e){s=fresh()}
+let s;try{s={...fresh(),...JSON.parse(localStorage.getItem('critterCoveSave')||'{}')};s.up={...fresh().up,...(s.up||{})};s.owned=s.owned||{};s.runEarned=Number(s.runEarned)||Number(s.lifetime)||0;s.legacyStars=Number(s.legacyStars)||0;s.rebirths=Number(s.rebirths)||0;s.habitats=Array.from({length:8},(_,i)=>!!(s.habitats||[])[i]);s.habitats[0]=true;s.activeHabitat=Math.min(Number(s.activeHabitat)||0,HABITATS.length-1);if(!s.habitats[s.activeHabitat])s.activeHabitat=0}catch(e){s=fresh()}
 let toastTimer, pendingCreature=null;
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.floor(n).toLocaleString();
