@@ -106,12 +106,21 @@ body{background:var(--bg)}
  .tab{font-size:10px;padding:9px 3px}
 }
 
+.brand-logo{display:block;width:180px;height:60px;object-fit:contain;object-position:left center}
+.auto-tree{position:absolute;z-index:2;left:calc(50% - 185px);top:50%;transform:translateY(-50%);width:112px;text-align:center;pointer-events:none;color:#476b45}
+.tree-icon{font-size:54px;line-height:1.05;position:relative;filter:drop-shadow(0 3px 2px #3e59331c)}
+.tree-icon span{position:absolute;right:5px;top:0;color:#c18c43;font-size:14px;animation:treeSpark 2s ease-in-out infinite}
+.auto-tree b{display:block;font-size:8px;letter-spacing:1px;margin-top:5px}
+.auto-tree small{display:block;font-size:8px;color:#929b8c;line-height:1.25;margin-top:3px}
+.auto-tree.working small{color:#477b5b;font-weight:900}
+@keyframes treeSpark{50%{opacity:.35;transform:translateY(-4px) scale(.8)}}
+@media(max-width:650px){.brand-logo{width:145px;height:49px}.auto-tree{left:2%;width:82px}.tree-icon{font-size:42px}.auto-tree b{font-size:7px}.auto-tree small{font-size:7px}}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="top">
- <div class="brand"><div class="logo">🥚</div><div><h1>CRITTER COVE</h1><small>IDLE HATCHERY</small></div></div>
+ <div class="brand"><img class="brand-logo" src="logo.png" alt="Critter Cove"></div>
  <div class="wallet"><div class="currency"><span id="coins">0</span><small>🪙 SHELLS</small></div><div class="currency" style="color:#a8d9ef"><span id="essence">0</span><small>✦ ESSENCE</small></div></div>
 </header>
 <nav class="tabs">
@@ -124,7 +133,7 @@ body{background:var(--bg)}
  <div class="main-grid">
   <div class="panel hatch-panel">
    <div class="hatch-title"><div class="eyebrow" id="biome-label">STARTER HABITAT</div><h2>Cozy Nest</h2><p>Your little hatchery is just getting started.</p></div>
-   <div class="egg-wrap"><div class="egg" id="tapEgg" role="button" aria-label="Tap egg to earn shells"><div class="egg-shell"></div><div class="egg-mark">✦</div></div></div>
+   <div class="egg-wrap"><div class="auto-tree" id="autoTree"><div class="tree-icon">🌳<span>✦</span></div><b>GROVE HELPER</b><small id="treeStatus">PLANT A GROVE TO START</small></div><div class="egg" id="tapEgg" role="button" aria-label="Tap egg to earn shells"><div class="egg-shell"></div><div class="egg-mark">✦</div></div></div>
    <div class="tap-hint">TAP THE EGG TO COLLECT SHELLS</div><div class="tap-power" id="tapPower">+1 shell per tap</div>
    <button class="hatch-button" id="hatchBtn">HATCH AN EGG · 25 🪙</button>
    <div class="subline" id="incomeLine">Hatchery income: 0 shells / sec</div>
@@ -135,7 +144,7 @@ body{background:var(--bg)}
     <div class="stats">
      <div class="stat"><strong id="perSec">0</strong><small>Shells / sec</small></div>
      <div class="stat"><strong id="totalHatched">0</strong><small>Hatched</small></div>
-     <div class="stat"><strong id="speciesCount">0/6</strong><small>Species</small></div>
+     <div class="stat"><strong id="speciesCount">0/36</strong><small>Species</small></div>
      <div class="stat"><strong id="bestRarity">—</strong><small>Best find</small></div>
     </div>
    </div>
@@ -148,7 +157,7 @@ body{background:var(--bg)}
 </section>
 <section class="view" id="view-collection">
  <div class="panel section">
-  <div class="collection-top"><div><h2>Creature Collection</h2><p class="lead">Every discovery is saved in your field guide.</p></div><b id="collectionProgress" style="color:var(--mint);font-size:13px">0 / 18</b></div>
+  <div class="collection-top"><div><h2>Creature Collection</h2><p class="lead">Every discovery is saved in your field guide.</p></div><b id="collectionProgress" style="color:var(--mint);font-size:13px">0 / 36</b></div>
   <div class="progress"><i id="collectionBar"></i></div>
   <div class="creature-grid" id="creatureGrid" style="margin-top:15px"></div>
  </div>
@@ -186,32 +195,64 @@ const CREATURES=[
  {id:'starwhale',name:'Starwhale',icon:'🐋',rarity:'Legendary',habitat:2,color:'#687eb6',desc:'An ancient giant said to carry the night sky.'},
  {id:'dreamsprite',name:'Dreamsprite',icon:'🧚',rarity:'Epic',habitat:0,color:'#b18acb',desc:'A tiny keeper of forgotten dreams.'},
  {id:'moonhare',name:'Moonhare',icon:'🐇',rarity:'Legendary',habitat:1,color:'#b4a0c9',desc:'Only appears when the moon is high.'},
- {id:'cosmicwyrm',name:'Cosmic Wyrm',icon:'🐉',rarity:'Mythic',habitat:2,color:'#ad78bd',desc:'A once-in-an-age visitor from beyond the stars.'}
+ {id:'cosmicwyrm',name:'Cosmic Wyrm',icon:'🐉',rarity:'Mythic',habitat:2,color:'#ad78bd',desc:'A once-in-an-age visitor from beyond the stars.'},
+ {id:'bloomtail',name:'Bloomtail',icon:'🐿️',rarity:'Common',habitat:0,color:'#d6ad79',desc:'A tiny acorn collector with a flower tucked behind one ear.'},
+ {id:'dewling',name:'Dewling',icon:'💧',rarity:'Uncommon',habitat:0,color:'#91c7b5',desc:'A little water spirit that dances on morning leaves.'},
+ {id:'barkbeetle',name:'Barkbeetle',icon:'🐞',rarity:'Rare',habitat:0,color:'#86a66e',desc:'A jewel-backed beetle that guards the oldest trees.'},
+ {id:'sunmane',name:'Sunmane',icon:'🦁',rarity:'Epic',habitat:0,color:'#e0ad56',desc:'A shy forest lion whose mane glows at sunrise.'},
+ {id:'coalpup',name:'Coalpup',icon:'🐕',rarity:'Common',habitat:1,color:'#a87564',desc:'A soot-smudged puppy who naps beside warm stones.'},
+ {id:'ashwing',name:'Ashwing',icon:'🦇',rarity:'Rare',habitat:1,color:'#a58b9c',desc:'A quiet flier that glides through the warm updrafts.'},
+ {id:'brasshorn',name:'Brasshorn',icon:'🐏',rarity:'Epic',habitat:1,color:'#d09a55',desc:'A sturdy mountain ram with shining golden horns.'},
+ {id:'magmawyrm',name:'Magmawyrm',icon:'🐲',rarity:'Legendary',habitat:1,color:'#d85f48',desc:'An ancient dragon that sleeps beneath the lava.'},
+ {id:'icebloom',name:'Icebloom',icon:'🌸',rarity:'Common',habitat:2,color:'#a9d9dc',desc:'A frost flower that learned how to walk.'},
+ {id:'snowpuff',name:'Snowpuff',icon:'🐻‍❄️',rarity:'Uncommon',habitat:2,color:'#d5e3e6',desc:'A fluffy cub that rolls down snowy hills.'},
+ {id:'crystalfox',name:'Crystal Fox',icon:'🦊',rarity:'Rare',habitat:2,color:'#91b8d5',desc:'Its glassy fur catches the colors of the aurora.'},
+ {id:'glacierowl',name:'Glacier Owl',icon:'🦉',rarity:'Epic',habitat:2,color:'#8ba7c5',desc:'A silent guardian with ice-blue feathers.'},
+ {id:'shellfin',name:'Shellfin',icon:'🐚',rarity:'Common',habitat:3,color:'#e5ad91',desc:'A tiny shore wanderer with a home on its back.'},
+ {id:'tidepuff',name:'Tidepuff',icon:'🦭',rarity:'Uncommon',habitat:3,color:'#8bbdca',desc:'A playful swimmer that bounces through the waves.'},
+ {id:'reefkip',name:'Reefkip',icon:'🐠',rarity:'Rare',habitat:3,color:'#e28e75',desc:'A bright little fish that hides among coral gardens.'},
+ {id:'coralback',name:'Coralback',icon:'🦀',rarity:'Epic',habitat:3,color:'#df8b76',desc:'A gentle crab with a colorful reef growing on its shell.'},
+ {id:'seastarseer',name:'Seastarseer',icon:'⭐',rarity:'Legendary',habitat:3,color:'#e9c66f',desc:'A glowing star creature said to guide lost sailors.'},
+ {id:'acornling',name:'Acornling',icon:'🌰',rarity:'Common',habitat:4,color:'#bd9666',desc:'A little woodland spirit that lives inside an acorn.'},
+ {id:'bramblebun',name:'Bramblebun',icon:'🐰',rarity:'Uncommon',habitat:4,color:'#b8a18a',desc:'A soft-eared rabbit that makes homes in bramble patches.'},
+ {id:'thistlefox',name:'Thistlefox',icon:'🦊',rarity:'Rare',habitat:4,color:'#a9a078',desc:'A clever fox with tiny flowers along its tail.'},
+ {id:'elderowl',name:'Elder Owl',icon:'🦉',rarity:'Epic',habitat:4,color:'#8c806d',desc:'A wise old owl who remembers every forest path.'},
+ {id:'rootwarden',name:'Rootwarden',icon:'🌳',rarity:'Legendary',habitat:4,color:'#77946b',desc:'A gentle giant who protects the hidden woodland.'},
+ {id:'cometkit',name:'Cometkit',icon:'☄️',rarity:'Common',habitat:5,color:'#a4a6d8',desc:'A tiny space traveler with a sparkling tail.'},
+ {id:'nebulamb',name:'Nebulamb',icon:'🐑',rarity:'Uncommon',habitat:5,color:'#b6a0d6',desc:'A soft little lamb with a coat like a night sky.'},
+ {id:'orbitotter',name:'Orbit Otter',icon:'🦦',rarity:'Rare',habitat:5,color:'#8ca9c6',desc:'It floats through the stars with its favorite pebble.'},
+ {id:'prismdrake',name:'Prism Drake',icon:'🐉',rarity:'Epic',habitat:5,color:'#a78bd1',desc:'Its scales shimmer with every color in the cosmos.'},
+ {id:'voidphoenix',name:'Void Phoenix',icon:'🪽',rarity:'Mythic',habitat:5,color:'#8e78b9',desc:'A once-in-an-era bird reborn from stardust.'}
 ];
 const HABITATS=[
  {name:'Cozy Nest',emoji:'🌿',cost:0,unlock:0,description:'Soft grass, quiet streams, and your first little friends.'},
  {name:'Ember Ridge',emoji:'🌋',cost:180,unlock:5,description:'Warm caves and volcanic creatures. Unlock for 180 shells.'},
- {name:'Frostfall Lake',emoji:'❄️',cost:650,unlock:10,description:'A frozen wonderland with rare sky swimmers. Unlock for 650 shells.'}
+ {name:'Frostfall Lake',emoji:'❄️',cost:650,unlock:10,description:'A frozen wonderland with rare sky swimmers. Unlock for 650 shells.'},
+ {name:'Coral Cove',emoji:'🪸',cost:1800,unlock:15,description:'Sunny reefs, tide pools, and colorful ocean discoveries.'},
+ {name:'Whispering Woods',emoji:'🌳',cost:4200,unlock:20,description:'An ancient woodland filled with secret paths and forest spirits.'},
+ {name:'Starfall Summit',emoji:'🌠',cost:9500,unlock:25,description:'A mountaintop under the stars, home to cosmic creatures.'}
 ];
 const UPGRADES=[
  {id:'tap',name:'Gentle Touch',icon:'👆',desc:'Earn more shells with every tap.',base:20,scale:1.75,max:30},
  {id:'nest',name:'Extra Nest',icon:'🪺',desc:'A helper gathers shells automatically.',base:35,scale:1.65,max:30},
  {id:'incubator',name:'Auto Incubator',icon:'🥚',desc:'Adds more passive shell production.',base:120,scale:1.8,max:20},
- {id:'luck',name:'Lucky Charm',icon:'🍀',desc:'Improves your odds of rarer creatures.',base:90,scale:2.0,max:10}
+ {id:'luck',name:'Lucky Charm',icon:'🍀',desc:'Improves your odds of rarer creatures.',base:90,scale:2.0,max:10},
+ {id:'grove',name:'Sproutling Tree',icon:'🌳',desc:'A tiny tree gathers shells for you every second.',base:160,scale:1.85,max:25},
+ {id:'birdhouse',name:'Helpful Birdhouse',icon:'🐦',desc:'A friendly bird brings home extra shells.',base:280,scale:1.9,max:20}
 ];
 const RANK={Common:0,Uncommon:1,Rare:2,Epic:3,Legendary:4,Mythic:5};
-const fresh=()=>({coins:0,essence:0,lifetime:0,taps:0,hatched:0,up:{tap:0,nest:0,incubator:0,luck:0},owned:{},habitats:[true,false,false],activeHabitat:0,best:'',last:Date.now()});
-let s;try{s={...fresh(),...JSON.parse(localStorage.getItem('critterCoveSave')||'{}')};s.up={...fresh().up,...(s.up||{})};s.owned=s.owned||{};s.habitats=s.habitats||[true,false,false]}catch(e){s=fresh()}
+const fresh=()=>({coins:0,essence:0,lifetime:0,taps:0,hatched:0,up:{tap:0,nest:0,incubator:0,luck:0,grove:0,birdhouse:0},owned:{},habitats:[true,false,false,false,false,false],activeHabitat:0,best:'',last:Date.now()});
+let s;try{s={...fresh(),...JSON.parse(localStorage.getItem('critterCoveSave')||'{}')};s.up={...fresh().up,...(s.up||{})};s.owned=s.owned||{};s.habitats=Array.from({length:HABITATS.length},(_,i)=>!!(s.habitats||[])[i]);s.habitats[0]=true;s.activeHabitat=Math.min(Number(s.activeHabitat)||0,HABITATS.length-1);if(!s.habitats[s.activeHabitat])s.activeHabitat=0}catch(e){s=fresh()}
 let toastTimer, pendingCreature=null;
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.floor(n).toLocaleString();
 function save(){s.last=Date.now();localStorage.setItem('critterCoveSave',JSON.stringify(s))}
-function income(){return s.up.nest*1.1+s.up.incubator*5}
+function income(){return s.up.nest*1.1+s.up.incubator*5+s.up.grove*2.5+s.up.birdhouse*.8}
 function tapValue(){return 1+s.up.tap*2}
 function cost(u){return Math.floor(u.base*Math.pow(u.scale,s.up[u.id]))} function essenceCost(u){return Math.floor(5*Math.pow(1.8,s.up[u.id]))}
 function say(msg){$('toast').textContent=msg;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1800)}
 function addCoins(n){s.coins+=n;s.lifetime+=n}
-function render(){ $('coins').textContent=fmt(s.coins);$('essence').textContent=fmt(s.essence);$('perSec').textContent=income().toFixed(1);$('incomeLine').textContent='Hatchery income: '+income().toFixed(1)+' shells / sec';$('tapPower').textContent='+'+fmt(tapValue())+' shells per tap';$('totalHatched').textContent=fmt(s.hatched);const count=Object.keys(s.owned).filter(k=>s.owned[k]>0).length;$('speciesCount').textContent=count+'/'+CREATURES.length;$('bestRarity').textContent=s.best||'—';renderUpgrades();renderCollection();renderHabitats();$('hatchBtn').disabled=s.coins<25;$('hatchBtn').textContent='HATCH AN EGG · 25 🪙'}
+function render(){ $('coins').textContent=fmt(s.coins);$('essence').textContent=fmt(s.essence);$('perSec').textContent=income().toFixed(1);$('incomeLine').textContent='Hatchery income: '+income().toFixed(1)+' shells / sec';$('tapPower').textContent='+'+fmt(tapValue())+' shells per tap';$('totalHatched').textContent=fmt(s.hatched);const count=Object.keys(s.owned).filter(k=>s.owned[k]>0).length;$('speciesCount').textContent=count+'/'+CREATURES.length;$('bestRarity').textContent=s.best||'—';$('treeStatus').textContent=income()>0?'COLLECTING +'+income().toFixed(1)+' / SEC':'PLANT A GROVE TO START';$('autoTree').classList.toggle('working',income()>0);renderUpgrades();renderCollection();renderHabitats();$('hatchBtn').disabled=s.coins<25;$('hatchBtn').textContent='HATCH AN EGG · 25 🪙'}
 function renderUpgrades(){ $('upgrades').innerHTML=UPGRADES.map(u=>{const c=u.id==='luck'?essenceCost(u):cost(u),currency=u.id==='luck'?'✦':'🪙',canAfford=u.id==='luck'?s.essence>=c:s.coins>=c,max=s.up[u.id]>=u.max;return '<div class="upgrade"><div class="up-icon">'+u.icon+'</div><div><b>'+u.name+' <span style="color:var(--muted)">Lv.'+s.up[u.id]+'</span></b><p>'+u.desc+'</p></div><button class="buy" data-up="'+u.id+'" '+(max||!canAfford?'disabled':'')+'>'+(max?'MAX':currency+' '+fmt(c))+'</button></div>'}).join('')}
 function renderCollection(){const count=Object.keys(s.owned).filter(k=>s.owned[k]>0).length;$('collectionProgress').textContent=count+' / '+CREATURES.length;$('collectionBar').style.width=(count/CREATURES.length*100)+'%';$('creatureGrid').innerHTML=CREATURES.map(c=>{const n=s.owned[c.id]||0,unlocked=!!n;return '<div class="creature-card '+(unlocked?'':'locked')+'"><div class="creature-art" style="--creature-color:'+c.color+'">'+(unlocked?c.icon:'?')+'</div><b>'+(unlocked?c.name:'Undiscovered')+'</b><small>'+(unlocked?'Owned ×'+n:'Keep hatching to find it')+'</small><span class="rarity '+c.rarity+'">'+(unlocked?c.rarity:'???')+'</span></div>'}).join('')}
 function renderHabitats(){ $('biomeGrid').innerHTML=HABITATS.map((b,i)=>{const open=s.habitats[i],active=s.activeHabitat===i;return '<div class="biome '+(open?'':'locked')+'"><div class="scene">'+b.emoji+'</div><h3>'+b.name+(active?' · ACTIVE':'')+'</h3><p>'+b.description+'</p><button data-biome="'+i+'" '+(!open&&s.coins<b.cost?'disabled':'')+'>'+(active?'CURRENT HABITAT':open?'TRAVEL HERE':'UNLOCK · 🪙 '+b.cost)+'</button></div>'}).join('')}
