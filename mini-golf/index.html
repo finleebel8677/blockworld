@@ -18,7 +18,7 @@ header{padding:calc(10px + env(safe-area-inset-top)) 15px 9px;display:flex;justi
 </style></head><body><div id="app">
 <header><div class="logo">⛳ MINI <span>GOLF CLUB</span></div><div class="course">CURRENT COURSE<b id="courseName">SUNNY MEADOWS</b></div></header>
 <div class="hud"><div class="pill"><small>STROKES</small><b id="strokes">0</b></div><div class="pill"><small>PAR</small><b id="par">3</b></div><div class="pill"><small>HOLE</small><b id="hole">1 / 9</b></div></div>
-<div id="stage"><canvas id="game"></canvas><div id="tip">PULL BACK FROM THE BALL TO AIM</div><div id="toast"></div></div>
+<div id="stage"><canvas id="game"></canvas><div id="tip">PULL BACK TO AIM • SIDE VIEW</div><div id="toast"></div></div>
 <div class="controls"><button class="btn" id="courses">🗺️ COURSES</button><button class="btn gold" id="reset">↻ RESTART</button><button class="btn" id="next">NEXT HOLE ›</button></div></div>
 <div id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">Choose a course</h2><button class="close" id="close">×</button></div><div id="modalBody"></div></div></div>
 <script>
@@ -47,46 +47,41 @@ function persist(){try{localStorage.setItem('miniGolfSave',JSON.stringify(save))
 function notify(s){$('toast').textContent=s;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1500);}
 function resize(){let r=stage.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);scale={w:r.width,h:r.height};}
 function world(){let w=scale.w,h=scale.h,pad=19;return{x:pad,y:pad,w:w-2*pad,h:h-2*pad};}
-function coords(a){let q=world();return[q.x+a[0]*q.w,q.y+a[1]*q.h];}
-function resetHole(){let h=hole(),p=coords(h.start);ball={x:p[0],y:p[1],vx:0,vy:0,r:Math.max(7,Math.min(10,scale.w*.018))};strokes=0;completed=false;aim=null;shots=[];updateHud();}
+function groundAt(x){let q=world(),t=(x-q.x)/q.w;return q.y+q.h*(.76-.035*Math.sin(t*Math.PI*2)-.018*Math.sin(t*Math.PI*5));}
+function coords(a){let q=world();return[q.x+a[0]*q.w,groundAt(q.x+a[0]*q.w)];}
+function resetHole(){let h=hole(),p=coords(h.start);ball={x:p[0],y:p[1]-Math.max(7,Math.min(10,scale.w*.018)),vx:0,vy:0,r:Math.max(7,Math.min(10,scale.w*.018))};strokes=0;completed=false;aim=null;shots=[];updateHud();}
 function updateHud(){$('strokes').textContent=strokes;$('par').textContent=hole().par;$('hole').textContent=(holeIndex+1)+' / 9';$('courseName').textContent=courses[courseIndex].name.toUpperCase();$('next').textContent=holeIndex===8?'FINISH 🏆':'NEXT HOLE ›';}
 function rect(x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
-function draw(){let w=scale.w,h=scale.h;if(!w||!h){requestAnimationFrame(draw);return;}anim+=.016;let q=world(),c=courses[courseIndex],hl=hole();
-ctx.clearRect(0,0,w,h);
-let bg=ctx.createLinearGradient(0,0,w,h);bg.addColorStop(0,c.theme[0]);bg.addColorStop(1,c.theme[1]);rect(0,0,w,h,0,bg);
-ctx.save();ctx.shadowColor='#071c1477';ctx.shadowBlur=14;rect(q.x,q.y,q.w,q.h,19,'#398a50','#c0e4a2');ctx.restore();
-// grass mowing stripes
-ctx.save();ctx.beginPath();ctx.roundRect(q.x,q.y,q.w,q.h,19);ctx.clip();for(let i=0;i<9;i++){ctx.fillStyle=i%2?'#ffffff08':'#073f2610';ctx.fillRect(q.x+i*q.w/9,q.y,q.w/18,q.h);} 
-// water and sand
-for(let a of hl.water){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=a[2]*q.w,hh=a[3]*q.h;ctx.fillStyle='#3db9c5';ctx.beginPath();ctx.ellipse(x+ww/2,y+hh/2,ww/2,hh/2,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b3f4e9aa';ctx.lineWidth=2;ctx.stroke();for(let k=0;k<3;k++){ctx.strokeStyle='#d8fff566';ctx.beginPath();ctx.arc(x+ww*(.25+k*.23),y+hh*.5,4+Math.sin(anim*2+k)*2,0,Math.PI);ctx.stroke();}}
-for(let a of hl.sand){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=a[2]*q.w,hh=a[3]*q.h;ctx.fillStyle='#e8d18a';ctx.beginPath();ctx.ellipse(x+ww/2,y+hh/2,ww/2,hh/2,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff0bd';ctx.stroke();}
-ctx.restore();
-// course boundary
-ctx.strokeStyle='#d4efad';ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(q.x,q.y,q.w,q.h,19);ctx.stroke();
-// walls
-for(let a of hl.walls){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=a[2]*q.w,hh=a[3]*q.h;rect(x,y,Math.max(7,ww),Math.max(7,hh),5,'#8d633c','#e3b777');rect(x+2,y+2,Math.max(3,ww-4),Math.max(3,hh-4),4,'#b8834b');}
-// moving obstacles
-for(let a of hl.obstacles){let mx=a.move==='x'?Math.sin(anim*1.3)*q.w*.12:0,my=a.move==='y'?Math.sin(anim*1.3)*q.h*.12:0;let x=q.x+a.x*q.w+mx,y=q.y+a.y*q.h+my,ww=a.w*q.w,hh=Math.max(7,a.h*q.h);rect(x,y,ww,hh,5,'#e85d52','#ffc0a0');ctx.fillStyle='#7e292b';ctx.fillRect(x+ww*.2,y+hh*.25,ww*.6,hh*.5);a._rect={x,y,w:ww,h:hh};}
-let cup=coords(hl.cup);ctx.fillStyle='#14231e';ctx.beginPath();ctx.ellipse(cup[0],cup[1]+4,ball.r*1.15,ball.r*.7,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f7f1ce';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cup[0],cup[1]-3);ctx.lineTo(cup[0],cup[1]-31);ctx.stroke();ctx.fillStyle='#f35b54';ctx.beginPath();ctx.moveTo(cup[0],cup[1]-31);ctx.lineTo(cup[0]+17,cup[1]-25);ctx.lineTo(cup[0],cup[1]-19);ctx.fill();
-// aiming guide
-if(aim&&!movingBall()){let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy),power=Math.min(1,len/125);ctx.setLineDash([5,6]);ctx.strokeStyle='#fff9d4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ball.x,ball.y);ctx.lineTo(ball.x+dx*.65,ball.y+dy*.65);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#122d22cc';rect(12,h-34,Math.max(70,(w-24)*power),9,5,'#e6efb5');ctx.fillStyle='#f7f4d6';ctx.font='bold 10px system-ui';ctx.fillText('POWER',14,h-40);}
-// ball shadow and ball
-ctx.fillStyle='#183b2b88';ctx.beginPath();ctx.ellipse(ball.x+2,ball.y+5,ball.r*1.05,ball.r*.72,0,0,Math.PI*2);ctx.fill();let shine=ctx.createRadialGradient(ball.x-ball.r*.35,ball.y-ball.r*.4,1,ball.x,ball.y,ball.r*1.3);shine.addColorStop(0,'#fff');shine.addColorStop(.5,'#f4f3e6');shine.addColorStop(1,'#b7c6b6');ctx.fillStyle=shine;ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();
+function draw(){let w=scale.w,h=scale.h;if(!w||!h){requestAnimationFrame(draw);return;}anim+=.016;let q=world(),c=courses[courseIndex],hl=hole();ctx.clearRect(0,0,w,h);
+let sky=ctx.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#8bd8ef');sky.addColorStop(.58,'#d9f0c0');sky.addColorStop(1,'#4c9a58');ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
+// distant hills and clouds
+ctx.fillStyle='#ffffff66';for(let i=0;i<3;i++){let x=(i*177+anim*4)%(w+100)-50;ctx.beginPath();ctx.arc(x,h*.2,15,0,Math.PI*2);ctx.arc(x+17,h*.19,19,0,Math.PI*2);ctx.arc(x+34,h*.2,13,0,Math.PI*2);ctx.fill();}
+ctx.fillStyle='#5caa68';ctx.beginPath();ctx.moveTo(0,h);for(let x=0;x<=w;x+=8)ctx.lineTo(x,groundAt(q.x+x/w*q.w));ctx.lineTo(w,h);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#b9e58b';ctx.lineWidth=7;ctx.beginPath();for(let x=0;x<=w;x+=6){let y=groundAt(q.x+x/w*q.w);if(!x)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+// ground details
+for(let i=0;i<24;i++){let x=(i*53+anim*7)%(w+20),y=groundAt(q.x+x/w*q.w)+8;ctx.fillStyle=i%2?'#347b46':'#8bd16b';ctx.fillRect(x,y,3,2);}
+// sand bunkers and water hazards as side-on pits
+for(let a of hl.sand){let x=q.x+a[0]*q.w,ww=a[2]*q.w,y=groundAt(x);ctx.fillStyle='#e9d18b';ctx.beginPath();ctx.ellipse(x+ww/2,y+2,ww/2,9,0,0,Math.PI);ctx.fill();ctx.strokeStyle='#fff0bd';ctx.stroke();}
+for(let a of hl.water){let x=q.x+a[0]*q.w,ww=a[2]*q.w,y=groundAt(x);ctx.fillStyle='#208eaf';ctx.beginPath();ctx.moveTo(x,y-2);ctx.quadraticCurveTo(x+ww*.5,y+12,x+ww,y-2);ctx.lineTo(x+ww,y+45);ctx.lineTo(x,y+45);ctx.closePath();ctx.fill();ctx.strokeStyle='#9af0ef';ctx.lineWidth=2;ctx.stroke();}
+// walls become side-view ramps / bumpers rising from the turf
+for(let a of hl.walls){let x=q.x+a[0]*q.w,ww=Math.max(12,a[2]*q.w),hh=Math.max(12,Math.min(q.h*.38,a[3]*q.h*.48)),y=groundAt(x)-hh;rect(x,y,ww,hh,5,'#9a673e','#f1c17a');rect(x+3,y+3,Math.max(4,ww-6),Math.max(5,hh-6),4,'#bd8950');}
+for(let a of hl.obstacles){let mx=a.move==='x'?Math.sin(anim*1.3)*q.w*.12:0;let x=q.x+a.x*q.w+mx,ww=a.w*q.w,hh=Math.max(10,a.h*q.h*.55),y=groundAt(x)-hh;rect(x,y,ww,hh,6,'#e85d52','#ffc0a0');a._rect={x,y,w:ww,h:hh};}
+let cup=coords(hl.cup);ctx.fillStyle='#17251d';ctx.beginPath();ctx.ellipse(cup[0],groundAt(cup[0])+2,ball.r*1.7,5,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f7f1ce';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cup[0],groundAt(cup[0])-3);ctx.lineTo(cup[0],groundAt(cup[0])-54);ctx.stroke();ctx.fillStyle='#f35b54';ctx.beginPath();ctx.moveTo(cup[0],groundAt(cup[0])-54);ctx.lineTo(cup[0]+24,groundAt(cup[0])-45);ctx.lineTo(cup[0],groundAt(cup[0])-36);ctx.fill();
+if(aim&&!movingBall()){let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy),power=Math.min(1,len/125);ctx.setLineDash([5,6]);ctx.strokeStyle='#fff9d4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ball.x,ball.y);ctx.lineTo(ball.x+dx*.55,ball.y+dy*.55-22);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#122d22cc';rect(12,h-34,Math.max(70,(w-24)*power),9,5,'#e6efb5');ctx.fillStyle='#f7f4d6';ctx.font='bold 10px system-ui';ctx.fillText('POWER',14,h-40);}
+ctx.fillStyle='#183b2b88';ctx.beginPath();ctx.ellipse(ball.x+2,groundAt(ball.x)+4,ball.r*1.2,ball.r*.42,0,0,Math.PI*2);ctx.fill();let shine=ctx.createRadialGradient(ball.x-ball.r*.35,ball.y-ball.r*.4,1,ball.x,ball.y,ball.r*1.3);shine.addColorStop(0,'#fff');shine.addColorStop(.5,'#f4f3e6');shine.addColorStop(1,'#b7c6b6');ctx.fillStyle=shine;ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();
 if(!completed)physics();requestAnimationFrame(draw);}
 function movingBall(){return Math.hypot(ball.vx,ball.vy)>.18;}
-function physics(){let q=world(),hl=hole();ball.x+=ball.vx;ball.y+=ball.vy;let speed=Math.hypot(ball.vx,ball.vy);let friction=.986;
-let nx=(ball.x-q.x)/q.w,ny=(ball.y-q.y)/q.h;
-for(let a of hl.sand){if(nx>a[0]&&nx<a[0]+a[2]&&ny>a[1]&&ny<a[1]+a[3])friction=.955;}
-ball.vx*=friction;ball.vy*=friction;if(Math.abs(ball.vx)<.045)ball.vx=0;if(Math.abs(ball.vy)<.045)ball.vy=0;
-if(ball.x<q.x+ball.r){ball.x=q.x+ball.r;ball.vx=Math.abs(ball.vx)*.72;}if(ball.x>q.x+q.w-ball.r){ball.x=q.x+q.w-ball.r;ball.vx=-Math.abs(ball.vx)*.72;}if(ball.y<q.y+ball.r){ball.y=q.y+ball.r;ball.vy=Math.abs(ball.vy)*.72;}if(ball.y>q.y+q.h-ball.r){ball.y=q.y+q.h-ball.r;ball.vy=-Math.abs(ball.vy)*.72;}
-for(let a of hl.walls){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=Math.max(7,a[2]*q.w),hh=Math.max(7,a[3]*q.h);collideRect(x,y,ww,hh);}
+function physics(){let q=world(),hl=hole();ball.x+=ball.vx;ball.y+=ball.vy;let speed=Math.hypot(ball.vx,ball.vy);ball.vy+=.22;let nx=(ball.x-q.x)/q.w;let friction=.992;
+for(let a of hl.sand)if(nx>a[0]&&nx<a[0]+a[2])friction=.965;ball.vx*=friction;
+if(ball.x<q.x+ball.r){ball.x=q.x+ball.r;ball.vx=Math.abs(ball.vx)*.65;}if(ball.x>q.x+q.w-ball.r){ball.x=q.x+q.w-ball.r;ball.vx=-Math.abs(ball.vx)*.65;}
+let gy=groundAt(ball.x)-ball.r;if(ball.y>gy){ball.y=gy;if(Math.abs(ball.vy)>1.1)ball.vy=-Math.abs(ball.vy)*.28;else ball.vy=0;ball.vx*=.985;}
+for(let a of hl.walls){let x=q.x+a[0]*q.w,ww=Math.max(12,a[2]*q.w),hh=Math.max(12,Math.min(q.h*.38,a[3]*q.h*.48)),y=groundAt(x)-hh;collideRect(x,y,ww,hh);}
 for(let a of hl.obstacles){let r=a._rect;if(r)collideRect(r.x,r.y,r.w,r.h);}
-for(let a of hl.water){if(nx>a[0]&&nx<a[0]+a[2]&&ny>a[1]&&ny<a[1]+a[3]){let p=coords(hl.start);ball.x=p[0];ball.y=p[1];ball.vx=ball.vy=0;notify('Splash! Back to the tee.');}}
-let cup=coords(hl.cup),dist=Math.hypot(ball.x-cup[0],ball.y-cup[1]);if(dist<ball.r*1.15&&speed<3.2){ball.x=cup[0];ball.y=cup[1];ball.vx=ball.vy=0;finishHole();}
-}
+for(let a of hl.water){if(nx>a[0]&&nx<a[0]+a[2]&&ball.y>=groundAt(ball.x)-ball.r-5){let p=coords(hl.start);ball.x=p[0];ball.y=p[1]-ball.r;ball.vx=ball.vy=0;notify('Splash! Back to the tee.');}}
+let cup=coords(hl.cup),dist=Math.hypot(ball.x-cup[0],ball.y-(groundAt(cup[0])-ball.r));if(dist<ball.r*1.3&&speed<3.8){ball.x=cup[0];ball.y=groundAt(cup[0])-ball.r;ball.vx=ball.vy=0;finishHole();}}
 function collideRect(x,y,w,h){let cx=clamp(ball.x,x,x+w),cy=clamp(ball.y,y,y+h),dx=ball.x-cx,dy=ball.y-cy,d=Math.hypot(dx,dy);if(d<ball.r){if(d===0){dx=1;d=1;}let nx=dx/d,ny=dy/d;ball.x+=nx*(ball.r-d);ball.y+=ny*(ball.r-d);let dot=ball.vx*nx+ball.vy*ny;if(dot<0){ball.vx-=1.65*dot*nx;ball.vy-=1.65*dot*ny;}}}
 function finishHole(){completed=true;let score=strokes-hole().par;let key=courseIndex+'-'+holeIndex;if(save.best[key]===undefined||strokes<save.best[key])save.best[key]=strokes;if(holeIndex===8)save.unlocked=Math.max(save.unlocked,Math.min(courses.length-1,courseIndex+1));persist();notify(score<0?'Eagle-level golf! Hole completed!':score===0?'Par! Nice shot!':'Hole completed!');$('tip').textContent='HOLE COMPLETE — TAP NEXT HOLE';}
-function shoot(){if(!aim||movingBall()||completed)return;let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy);if(len<8){aim=null;return;}let power=Math.min(13,len*.105);ball.vx=dx/len*power;ball.vy=dy/len*power;strokes++;updateHud();aim=null;}
+function shoot(){if(!aim||movingBall()||completed)return;let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy);if(len<8){aim=null;return;}let power=Math.min(13,len*.105);ball.vx=dx/len*power;ball.vy=Math.min(0,dy/len*power)-Math.min(5,power*.38);strokes++;updateHud();aim=null;}
 function pointerDown(e){e.preventDefault();if(movingBall()||completed)return;let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;if(Math.hypot(x-ball.x,y-ball.y)<ball.r*3.5){aim={x,y};canvas.setPointerCapture?.(e.pointerId);}}
 function pointerMove(e){if(!aim)return;e.preventDefault();let r=canvas.getBoundingClientRect();aim.x=e.clientX-r.left;aim.y=e.clientY-r.top;let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy);if(len>140){aim.x=ball.x-dx/len*140;aim.y=ball.y-dy/len*140;}}
 canvas.addEventListener('pointerdown',pointerDown,{passive:false});canvas.addEventListener('pointermove',pointerMove,{passive:false});canvas.addEventListener('pointerup',e=>{e.preventDefault();shoot();},{passive:false});canvas.addEventListener('pointercancel',()=>aim=null);
