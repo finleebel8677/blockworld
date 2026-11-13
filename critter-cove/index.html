@@ -390,6 +390,7 @@ $('exportSave').addEventListener('click',()=>{save();$('saveCode').value='CRITTE
 $('copySave').addEventListener('click',async()=>{const t=$('saveCode');if(!t.value){say('Create a backup code first.');return}try{await navigator.clipboard.writeText(t.value);say('Backup copied!')}catch(e){t.focus();t.select();say('Select and copy the backup code.')}});
 $('importSave').addEventListener('click',()=>{try{
  let raw=$('saveCode').value.trim().replace(/^\uFEFF/,'');
+ raw=raw.replace(/^crittercove1:/i,'CRITTERCOVE1:');
  raw=raw.replace(/^\x60{3}(?:text|txt)?/i,'').replace(/\x60{3}$/,'').trim();
  raw=raw.replace(/^["'“”]|["'“”]$/g,'').replace(/\s+/g,'');
  let payload=raw;
