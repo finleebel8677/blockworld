@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#102c29">
+<title>Mini Golf Club</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#102c29;color:#f7f8ef;font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
+button{font:inherit;border:0;color:inherit;cursor:pointer;touch-action:manipulation}
+#app{height:100dvh;max-width:600px;margin:auto;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 0,#275b4c,#102c29 68%);overflow:hidden}
+header{padding:calc(10px + env(safe-area-inset-top)) 15px 9px;display:flex;justify-content:space-between;align-items:center}.logo{font-weight:1000;letter-spacing:1.2px;font-size:19px}.logo span{color:#b8ee82}.course{text-align:right;color:#a8cbb8;font-size:10px;font-weight:900;letter-spacing:1px}.course b{display:block;color:#fff;font-size:16px;letter-spacing:0}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 9px}.pill{background:#1a4239;border:1px solid #3c705b;border-radius:13px;padding:7px 10px;box-shadow:0 4px 12px #061c18aa}.pill small{font-size:9px;color:#acd0bd;font-weight:900;letter-spacing:.8px}.pill b{display:block;font-size:17px;margin-top:1px}
+#stage{position:relative;flex:1;min-height:0;margin:0 8px;border:2px solid #4c8768;border-radius:20px;overflow:hidden;background:#173d32;box-shadow:0 8px 28px #071c18aa}canvas{display:block;width:100%;height:100%;touch-action:none}
+#tip{position:absolute;left:50%;top:9px;transform:translateX(-50%);white-space:nowrap;background:#102b24d9;border:1px solid #719c7b;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:850;pointer-events:none}
+.controls{padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{min-height:48px;border-radius:14px;background:linear-gradient(#2e6651,#204c3f);border:1px solid #639477;box-shadow:0 4px 0 #0b2922;font-size:12px;font-weight:950}.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #0b2922}.btn.gold{background:linear-gradient(#d8f38d,#9dc85b);color:#20391e;border-color:#e2f9aa}
+#modal{position:fixed;inset:0;background:#061a16d9;display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:5}#modal.open{display:flex}.sheet{width:min(100%,550px);max-height:82dvh;overflow:auto;background:linear-gradient(#285746,#173a31);border:1px solid #659779;border-radius:22px;padding:17px;box-shadow:0 20px 70px #0009}.sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.sheet h2{margin:0;font-size:21px}.close{width:34px;height:34px;border-radius:10px;background:#47725d;font-size:20px}.courseRow{display:flex;align-items:center;gap:12px;background:#1b4438;border:1px solid #47745c;border-radius:14px;padding:11px;margin:8px 0}.courseRow .ci{font-size:26px}.courseRow .desc{flex:1}.courseRow small{display:block;color:#b4d3bf;font-size:11px}.courseRow button{background:#d4ee8a;color:#20391e;border-radius:10px;padding:9px 12px;font-weight:950}.courseRow button:disabled{opacity:.4}
+#toast{position:absolute;bottom:12px;left:50%;transform:translate(-50%,10px);opacity:0;background:#102b24ed;border:1px solid #8bb895;border-radius:12px;padding:9px 13px;font-size:12px;font-weight:900;white-space:nowrap;pointer-events:none;transition:.2s}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:620px){#app{border-left:1px solid #3b6655;border-right:1px solid #3b6655}}
+</style></head><body><div id="app">
+<header><div class="logo">⛳ MINI <span>GOLF CLUB</span></div><div class="course">CURRENT COURSE<b id="courseName">SUNNY MEADOWS</b></div></header>
+<div class="hud"><div class="pill"><small>STROKES</small><b id="strokes">0</b></div><div class="pill"><small>PAR</small><b id="par">3</b></div><div class="pill"><small>HOLE</small><b id="hole">1 / 9</b></div></div>
+<div id="stage"><canvas id="game"></canvas><div id="tip">PULL BACK FROM THE BALL TO AIM</div><div id="toast"></div></div>
+<div class="controls"><button class="btn" id="courses">🗺️ COURSES</button><button class="btn gold" id="reset">↻ RESTART</button><button class="btn" id="next">NEXT HOLE ›</button></div></div>
+<div id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">Choose a course</h2><button class="close" id="close">×</button></div><div id="modalBody"></div></div></div>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage'),$=id=>document.getElementById(id);
+const courses=[
+{name:'Sunny Meadows',emoji:'🌿',unlock:0,desc:'Gentle greens and friendly first holes',theme:['#77c96c','#54ad5b'],holes:[
+{par:2,start:[.18,.72],cup:[.82,.28],walls:[],sand:[],water:[],obstacles:[]},
+{par:3,start:[.17,.78],cup:[.83,.2],walls:[[.42,.25,.035,.42]],sand:[[.66,.48,.13,.12]],water:[],obstacles:[]},
+{par:3,start:[.15,.5],cup:[.85,.5],walls:[[.38,.12,.035,.32],[.62,.56,.035,.32]],sand:[[.48,.38,.13,.24]],water:[],obstacles:[]},
+{par:3,start:[.18,.82],cup:[.82,.18],walls:[[.3,.45,.4,.035]],sand:[],water:[[.58,.18,.18,.2]],obstacles:[]},
+{par:4,start:[.15,.5],cup:[.85,.5],walls:[[.34,.15,.035,.7],[.66,.15,.035,.7]],sand:[[.43,.2,.12,.14],[.43,.66,.12,.14]],water:[],obstacles:[{type:'bar',x:.5,y:.5,w:.23,h:.035,move:'y'}]},
+{par:3,start:[.16,.82],cup:[.84,.18],walls:[[.35,.35,.3,.035],[.35,.62,.3,.035]],sand:[],water:[[.67,.39,.13,.2]],obstacles:[]},
+{par:4,start:[.15,.5],cup:[.84,.5],walls:[[.28,.15,.035,.7],[.68,.15,.035,.7],[.28,.15,.4,.035],[.28,.82,.4,.035]],sand:[[.45,.35,.12,.3]],water:[],obstacles:[]},
+{par:3,start:[.15,.78],cup:[.84,.22],walls:[[.35,.2,.035,.55],[.62,.25,.035,.55]],sand:[],water:[],obstacles:[{type:'bar',x:.49,y:.5,w:.2,h:.035,move:'x'}]},
+{par:4,start:[.14,.5],cup:[.86,.5],walls:[[.3,.18,.035,.64],[.67,.18,.035,.64],[.3,.18,.37,.035],[.3,.79,.37,.035]],sand:[[.43,.34,.15,.3]],water:[[.52,.4,.12,.2]],obstacles:[{type:'bar',x:.5,y:.5,w:.2,h:.04,move:'y'}]}
+]},
+{name:'Desert Dunes',emoji:'🏜️',unlock:5,desc:'Tricky banks, bunkers and water traps',theme:['#d6ae61','#bd8745'],holes:Array.from({length:9},(_,i)=>({par:3+(i%2),start:[.15,.8],cup:[.84,.2],walls:[[.32,.15,.035,.7],[.65,.15,.035,.7]],sand:[[.42,.28,.18,.18],[.42,.58,.18,.18]],water:i%2?[[.7,.4,.12,.2]]:[],obstacles:[{type:'bar',x:.5,y:.5,w:.2,h:.035,move:'x'}]}))},
+{name:'Frosty Peaks',emoji:'❄️',unlock:12,desc:'Icy greens with slippery shots',theme:['#83c9d8','#4d99b7'],holes:Array.from({length:9},(_,i)=>({par:3,start:[.15,.78],cup:[.85,.2],walls:[[.35,.15,.035,.7],[.63,.15,.035,.7]],sand:[],water:[[.47,.34,.16,.3]],obstacles:[{type:'bar',x:.5,y:.5,w:.23,h:.035,move:'y'}]}))}
+];
+let courseIndex=0,holeIndex=0,strokes=0,ball={x:0,y:0,vx:0,vy:0,r:9},aim=null,shots=[],anim=0,scale={w:0,h:0},toastTimer=0,completed=false,save={unlocked:0,best:{}};
+try{save={...save,...JSON.parse(localStorage.getItem('miniGolfSave')||'{}')};}catch(e){}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),moving=[];
+function hole(){return courses[courseIndex].holes[holeIndex];}
+function persist(){try{localStorage.setItem('miniGolfSave',JSON.stringify(save));}catch(e){}}
+function notify(s){$('toast').textContent=s;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1500);}
+function resize(){let r=stage.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);scale={w:r.width,h:r.height};}
+function world(){let w=scale.w,h=scale.h,pad=19;return{x:pad,y:pad,w:w-2*pad,h:h-2*pad};}
+function coords(a){let q=world();return[q.x+a[0]*q.w,q.y+a[1]*q.h];}
+function resetHole(){let h=hole(),p=coords(h.start);ball={x:p[0],y:p[1],vx:0,vy:0,r:Math.max(7,Math.min(10,scale.w*.018))};strokes=0;completed=false;aim=null;shots=[];updateHud();}
+function updateHud(){$('strokes').textContent=strokes;$('par').textContent=hole().par;$('hole').textContent=(holeIndex+1)+' / 9';$('courseName').textContent=courses[courseIndex].name.toUpperCase();$('next').textContent=holeIndex===8?'FINISH 🏆':'NEXT HOLE ›';}
+function rect(x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
+function draw(){let w=scale.w,h=scale.h;if(!w||!h){requestAnimationFrame(draw);return;}anim+=.016;let q=world(),c=courses[courseIndex],hl=hole();
+ctx.clearRect(0,0,w,h);
+let bg=ctx.createLinearGradient(0,0,w,h);bg.addColorStop(0,c.theme[0]);bg.addColorStop(1,c.theme[1]);rect(0,0,w,h,0,bg);
+ctx.save();ctx.shadowColor='#071c1477';ctx.shadowBlur=14;rect(q.x,q.y,q.w,q.h,19,'#398a50','#c0e4a2');ctx.restore();
+// grass mowing stripes
+ctx.save();ctx.beginPath();ctx.roundRect(q.x,q.y,q.w,q.h,19);ctx.clip();for(let i=0;i<9;i++){ctx.fillStyle=i%2?'#ffffff08':'#073f2610';ctx.fillRect(q.x+i*q.w/9,q.y,q.w/18,q.h);} 
+// water and sand
+for(let a of hl.water){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=a[2]*q.w,hh=a[3]*q.h;ctx.fillStyle='#3db9c5';ctx.beginPath();ctx.ellipse(x+ww/2,y+hh/2,ww/2,hh/2,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b3f4e9aa';ctx.lineWidth=2;ctx.stroke();for(let k=0;k<3;k++){ctx.strokeStyle='#d8fff566';ctx.beginPath();ctx.arc(x+ww*(.25+k*.23),y+hh*.5,4+Math.sin(anim*2+k)*2,0,Math.PI);ctx.stroke();}}
+for(let a of hl.sand){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=a[2]*q.w,hh=a[3]*q.h;ctx.fillStyle='#e8d18a';ctx.beginPath();ctx.ellipse(x+ww/2,y+hh/2,ww/2,hh/2,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff0bd';ctx.stroke();}
+ctx.restore();
+// course boundary
+ctx.strokeStyle='#d4efad';ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(q.x,q.y,q.w,q.h,19);ctx.stroke();
+// walls
+for(let a of hl.walls){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=a[2]*q.w,hh=a[3]*q.h;rect(x,y,Math.max(7,ww),Math.max(7,hh),5,'#8d633c','#e3b777');rect(x+2,y+2,Math.max(3,ww-4),Math.max(3,hh-4),4,'#b8834b');}
+// moving obstacles
+for(let a of hl.obstacles){let mx=a.move==='x'?Math.sin(anim*1.3)*q.w*.12:0,my=a.move==='y'?Math.sin(anim*1.3)*q.h*.12:0;let x=q.x+a.x*q.w+mx,y=q.y+a.y*q.h+my,ww=a.w*q.w,hh=Math.max(7,a.h*q.h);rect(x,y,ww,hh,5,'#e85d52','#ffc0a0');ctx.fillStyle='#7e292b';ctx.fillRect(x+ww*.2,y+hh*.25,ww*.6,hh*.5);a._rect={x,y,w:ww,h:hh};}
+let cup=coords(hl.cup);ctx.fillStyle='#14231e';ctx.beginPath();ctx.ellipse(cup[0],cup[1]+4,ball.r*1.15,ball.r*.7,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f7f1ce';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cup[0],cup[1]-3);ctx.lineTo(cup[0],cup[1]-31);ctx.stroke();ctx.fillStyle='#f35b54';ctx.beginPath();ctx.moveTo(cup[0],cup[1]-31);ctx.lineTo(cup[0]+17,cup[1]-25);ctx.lineTo(cup[0],cup[1]-19);ctx.fill();
+// aiming guide
+if(aim&&!movingBall()){let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy),power=Math.min(1,len/125);ctx.setLineDash([5,6]);ctx.strokeStyle='#fff9d4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ball.x,ball.y);ctx.lineTo(ball.x+dx*.65,ball.y+dy*.65);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#122d22cc';rect(12,h-34,Math.max(70,(w-24)*power),9,5,'#e6efb5');ctx.fillStyle='#f7f4d6';ctx.font='bold 10px system-ui';ctx.fillText('POWER',14,h-40);}
+// ball shadow and ball
+ctx.fillStyle='#183b2b88';ctx.beginPath();ctx.ellipse(ball.x+2,ball.y+5,ball.r*1.05,ball.r*.72,0,0,Math.PI*2);ctx.fill();let shine=ctx.createRadialGradient(ball.x-ball.r*.35,ball.y-ball.r*.4,1,ball.x,ball.y,ball.r*1.3);shine.addColorStop(0,'#fff');shine.addColorStop(.5,'#f4f3e6');shine.addColorStop(1,'#b7c6b6');ctx.fillStyle=shine;ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();
+if(!completed)physics();requestAnimationFrame(draw);}
+function movingBall(){return Math.hypot(ball.vx,ball.vy)>.18;}
+function physics(){let q=world(),hl=hole();ball.x+=ball.vx;ball.y+=ball.vy;let speed=Math.hypot(ball.vx,ball.vy);let friction=.986;
+let nx=(ball.x-q.x)/q.w,ny=(ball.y-q.y)/q.h;
+for(let a of hl.sand){if(nx>a[0]&&nx<a[0]+a[2]&&ny>a[1]&&ny<a[1]+a[3])friction=.955;}
+ball.vx*=friction;ball.vy*=friction;if(Math.abs(ball.vx)<.045)ball.vx=0;if(Math.abs(ball.vy)<.045)ball.vy=0;
+if(ball.x<q.x+ball.r){ball.x=q.x+ball.r;ball.vx=Math.abs(ball.vx)*.72;}if(ball.x>q.x+q.w-ball.r){ball.x=q.x+q.w-ball.r;ball.vx=-Math.abs(ball.vx)*.72;}if(ball.y<q.y+ball.r){ball.y=q.y+ball.r;ball.vy=Math.abs(ball.vy)*.72;}if(ball.y>q.y+q.h-ball.r){ball.y=q.y+q.h-ball.r;ball.vy=-Math.abs(ball.vy)*.72;}
+for(let a of hl.walls){let x=q.x+a[0]*q.w,y=q.y+a[1]*q.h,ww=Math.max(7,a[2]*q.w),hh=Math.max(7,a[3]*q.h);collideRect(x,y,ww,hh);}
+for(let a of hl.obstacles){let r=a._rect;if(r)collideRect(r.x,r.y,r.w,r.h);}
+for(let a of hl.water){if(nx>a[0]&&nx<a[0]+a[2]&&ny>a[1]&&ny<a[1]+a[3]){let p=coords(hl.start);ball.x=p[0];ball.y=p[1];ball.vx=ball.vy=0;notify('Splash! Back to the tee.');}}
+let cup=coords(hl.cup),dist=Math.hypot(ball.x-cup[0],ball.y-cup[1]);if(dist<ball.r*1.15&&speed<3.2){ball.x=cup[0];ball.y=cup[1];ball.vx=ball.vy=0;finishHole();}
+}
+function collideRect(x,y,w,h){let cx=clamp(ball.x,x,x+w),cy=clamp(ball.y,y,y+h),dx=ball.x-cx,dy=ball.y-cy,d=Math.hypot(dx,dy);if(d<ball.r){if(d===0){dx=1;d=1;}let nx=dx/d,ny=dy/d;ball.x+=nx*(ball.r-d);ball.y+=ny*(ball.r-d);let dot=ball.vx*nx+ball.vy*ny;if(dot<0){ball.vx-=1.65*dot*nx;ball.vy-=1.65*dot*ny;}}}
+function finishHole(){completed=true;let score=strokes-hole().par;let key=courseIndex+'-'+holeIndex;if(save.best[key]===undefined||strokes<save.best[key])save.best[key]=strokes;if(holeIndex===8)save.unlocked=Math.max(save.unlocked,Math.min(courses.length-1,courseIndex+1));persist();notify(score<0?'Eagle-level golf! Hole completed!':score===0?'Par! Nice shot!':'Hole completed!');$('tip').textContent='HOLE COMPLETE — TAP NEXT HOLE';}
+function shoot(){if(!aim||movingBall()||completed)return;let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy);if(len<8){aim=null;return;}let power=Math.min(13,len*.105);ball.vx=dx/len*power;ball.vy=dy/len*power;strokes++;updateHud();aim=null;}
+function pointerDown(e){e.preventDefault();if(movingBall()||completed)return;let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;if(Math.hypot(x-ball.x,y-ball.y)<ball.r*3.5){aim={x,y};canvas.setPointerCapture?.(e.pointerId);}}
+function pointerMove(e){if(!aim)return;e.preventDefault();let r=canvas.getBoundingClientRect();aim.x=e.clientX-r.left;aim.y=e.clientY-r.top;let dx=ball.x-aim.x,dy=ball.y-aim.y,len=Math.hypot(dx,dy);if(len>140){aim.x=ball.x-dx/len*140;aim.y=ball.y-dy/len*140;}}
+canvas.addEventListener('pointerdown',pointerDown,{passive:false});canvas.addEventListener('pointermove',pointerMove,{passive:false});canvas.addEventListener('pointerup',e=>{e.preventDefault();shoot();},{passive:false});canvas.addEventListener('pointercancel',()=>aim=null);
+function openCourses(){$('modal').classList.add('open');$('modalTitle').textContent='🗺️ Choose a course';let body=$('modalBody');body.innerHTML='';courses.forEach((c,i)=>{let row=document.createElement('div');row.className='courseRow';let locked=i>save.unlocked;row.innerHTML='<div class="ci">'+(locked?'🔒':c.emoji)+'</div><div class="desc"><b>'+c.name+'</b><small>'+c.desc+'</small></div><button '+(locked?'disabled':'')+'>'+(locked?'LOCKED':'PLAY')+'</button>';row.querySelector('button').onclick=()=>{courseIndex=i;holeIndex=0;$('modal').classList.remove('open');$('tip').textContent='PULL BACK FROM THE BALL TO AIM';resetHole();};body.append(row);});}
+$('courses').onclick=openCourses;$('reset').onclick=()=>{resetHole();notify('Hole restarted');};$('next').onclick=()=>{if(!completed){notify('Sink the ball first!');return;}if(holeIndex<8){holeIndex++;resetHole();$('tip').textContent='PULL BACK FROM THE BALL TO AIM';}else{notify('Course complete! Choose another course.');openCourses();}};$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('pointerdown',e=>{if(e.target===$('modal'))$('modal').classList.remove('open');});
+document.addEventListener('touchmove',e=>{if(!$('modal').classList.contains('open'))e.preventDefault();},{passive:false});document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});document.addEventListener('contextmenu',e=>e.preventDefault());
+resize();resetHole();window.addEventListener('resize',()=>{resize();resetHole();});draw();
+})();
+</script></body></html>
