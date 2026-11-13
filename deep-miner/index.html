@@ -24,7 +24,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <body><div id="app">
 <header><div class="brand">⛏️ DEEP <span>MINER</span></div><div class="depth">CURRENT DEPTH<b id="depth">0 m</b></div></header>
 <div class="stats"><div class="stat"><small>🪙 COINS</small><strong id="coins">0</strong></div><div class="stat"><small>⚡ PICKAXE POWER</small><strong id="power">1</strong></div><div class="stat"><small>🎒 ORE BAG</small><strong id="bag">0 / 30</strong></div></div>
-<div id="mineArea"><canvas id="game"></canvas><div id="hint">TAP A BLOCK NEXT TO YOU TO MINE</div><div id="toast"></div></div>
+<div id="mineArea"><canvas id="game"></canvas><div id="hint">SIDE-VIEW MINING • TAP A NEARBY BLOCK</div><div id="toast"></div></div>
 <div class="bottom"><button class="action" id="upgradeBtn"><span class="emoji">🛠️</span>UPGRADES</button><button class="action primary" id="sellBtn"><span class="emoji">💰</span>SELL ORES</button><button class="action" id="bagBtn"><span class="emoji">🎒</span>COLLECTION</button></div>
 </div>
 <div id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">Upgrades</h2><button class="close" id="close">×</button></div><div id="modalBody"></div></div></div>
@@ -54,15 +54,25 @@ function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clea
 function updateUI(){$('coins').textContent=Math.floor(save.coins).toLocaleString();$('power').textContent=save.power;$('bag').textContent=save.bag.length+' / '+save.capacity;$('depth').textContent=(player.y*4)+' m';}
 function resize(){let r=area.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.floor(r.width*d);canvas.height=Math.floor(r.height*d);ctx.setTransform(d,0,0,d,0,0);cols=9;tile=Math.max(30,Math.min(48,r.width/cols));}
 function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
-function drawBlock(x,y,b,sx,sy){let o=b.ore;let depth=y*4;let grad=ctx.createLinearGradient(sx,sy,sx,sy+tile);grad.addColorStop(0,depth<10?'#43566a':'#34465a');grad.addColorStop(1,depth<10?'#293c50':'#202f42');ctx.fillStyle=grad;rounded(sx+1,sy+1,tile-2,tile-2,5);ctx.fill();ctx.strokeStyle='#6a829755';ctx.lineWidth=1;ctx.stroke();
-let cracked=b.hp<o.hp;if(o!==ores[0]){ctx.fillStyle=o.color;ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(sx+tile*.5,sy+tile*.49,tile*.19,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#ffffff66';ctx.beginPath();ctx.arc(sx+tile*.43,sy+tile*.4,tile*.055,0,Math.PI*2);ctx.fill();}
-if(cracked){ctx.strokeStyle='#101a28';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+tile*.48,sy+tile*.28);ctx.lineTo(sx+tile*.4,sy+tile*.52);ctx.lineTo(sx+tile*.56,sy+tile*.62);ctx.stroke();}
-}
+function drawBlock(x,y,b,sx,sy){let o=b.ore,depth=y*4;let base=depth<10?'#455c70':'#293d53';let grad=ctx.createLinearGradient(sx,sy,sx+tile,sy+tile);grad.addColorStop(0,base);grad.addColorStop(1,'#17283b');ctx.fillStyle=grad;rounded(sx+1,sy+1,tile-2,tile-2,4);ctx.fill();ctx.strokeStyle='#7890a455';ctx.lineWidth=1;ctx.stroke();
+// lit upper edge and darker side face create a readable side-on rock wall
+ctx.fillStyle='#a9bfd022';ctx.beginPath();ctx.moveTo(sx+3,sy+3);ctx.lineTo(sx+tile-3,sy+3);ctx.lineTo(sx+tile-8,sy+8);ctx.lineTo(sx+7,sy+8);ctx.closePath();ctx.fill();
+ctx.fillStyle='#07132135';ctx.beginPath();ctx.moveTo(sx+tile-7,sy+8);ctx.lineTo(sx+tile-3,sy+3);ctx.lineTo(sx+tile-3,sy+tile-3);ctx.lineTo(sx+tile-8,sy+tile-8);ctx.closePath();ctx.fill();
+if(o!==ores[0]){ctx.save();ctx.shadowColor=o.color;ctx.shadowBlur=tile*.12;ctx.fillStyle=o.color;ctx.beginPath();ctx.moveTo(sx+tile*.5,sy+tile*.22);ctx.lineTo(sx+tile*.72,sy+tile*.48);ctx.lineTo(sx+tile*.5,sy+tile*.75);ctx.lineTo(sx+tile*.28,sy+tile*.48);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#ffffff88';ctx.beginPath();ctx.moveTo(sx+tile*.5,sy+tile*.27);ctx.lineTo(sx+tile*.61,sy+tile*.47);ctx.lineTo(sx+tile*.5,sy+tile*.46);ctx.closePath();ctx.fill();}
+if(b.hp<o.hp){ctx.strokeStyle='#101a28';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+tile*.48,sy+tile*.25);ctx.lineTo(sx+tile*.4,sy+tile*.52);ctx.lineTo(sx+tile*.56,sy+tile*.65);ctx.stroke();}}
 function draw(){let w=area.clientWidth,h=area.clientHeight;ctx.clearRect(0,0,w,h);let target=Math.max(0,player.y*tile-h*.52);camY+=(target-camY)*.13;let offset=(h%tile)/2;
 let start=Math.max(0,Math.floor(camY/tile)),end=Math.min(grid.length-1,start+Math.ceil(h/tile)+2);
 for(let y=start;y<=end;y++)for(let x=0;x<cols;x++){let sx=(w-cols*tile)/2+x*tile,sy=y*tile-camY;drawBlock(x,y,grid[y][x],sx,sy);}
 let px=(w-cols*tile)/2+player.x*tile,py=player.y*tile-camY;
-ctx.save();ctx.translate(px+tile/2,py+tile/2+Math.sin(Date.now()/180)*1.5);ctx.shadowColor='#ffd46a';ctx.shadowBlur=13;ctx.fillStyle='#ffd46a';rounded(-tile*.28,-tile*.35,tile*.56,tile*.7,8);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#60421d';rounded(-tile*.19,-tile*.22,tile*.38,tile*.28,5);ctx.fill();ctx.fillStyle='#f5d5a1';ctx.beginPath();ctx.arc(0,-tile*.34,tile*.16,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#e9f0f5';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(tile*.12,-tile*.1);ctx.lineTo(tile*.4,-tile*.42);ctx.stroke();ctx.restore();
+ctx.save();ctx.translate(px+tile/2,py+tile/2+Math.sin(Date.now()/180)*1.2);ctx.shadowColor='#ffd46a';ctx.shadowBlur=10;
+// side-profile miner: helmet, face, backpack, torso, legs and raised pickaxe
+ctx.fillStyle='#c47b32';rounded(-tile*.25,-tile*.02,tile*.23,tile*.43,5);ctx.fill();
+ctx.fillStyle='#e7a83f';rounded(-tile*.08,-tile*.16,tile*.35,tile*.42,6);ctx.fill();
+ctx.shadowBlur=0;ctx.fillStyle='#f2c69a';ctx.beginPath();ctx.arc(tile*.12,-tile*.29,tile*.17,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#ffd45c';ctx.beginPath();ctx.arc(tile*.1,-tile*.37,tile*.2,Math.PI,Math.PI*2);ctx.lineTo(tile*.3,-tile*.28);ctx.lineTo(-tile*.09,-tile*.28);ctx.closePath();ctx.fill();
+ctx.fillStyle='#26384b';ctx.beginPath();ctx.arc(tile*.23,-tile*.29,1.5,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='#25384c';ctx.lineWidth=tile*.09;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(tile*.02,tile*.28);ctx.lineTo(-tile*.03,tile*.43);ctx.moveTo(tile*.18,tile*.27);ctx.lineTo(tile*.27,tile*.42);ctx.stroke();
+ctx.strokeStyle='#e6edf3';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(tile*.22,-tile*.02);ctx.lineTo(tile*.42,-tile*.34);ctx.stroke();ctx.strokeStyle='#f4c45b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(tile*.34,-tile*.35);ctx.lineTo(tile*.5,-tile*.35);ctx.stroke();ctx.restore();
 for(let p of particles){ctx.globalAlpha=Math.max(0,p.life/30);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life--;}particles=particles.filter(p=>p.life>0);
 requestAnimationFrame(draw);}
 function burst(x,y,color){for(let i=0;i<9;i++)particles.push({x,y,vx:(Math.random()-.5)*4,vy:-Math.random()*3,size:2+Math.random()*3,life:25,color});}
