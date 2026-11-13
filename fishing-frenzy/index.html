@@ -33,9 +33,56 @@ header{position:absolute;top:env(safe-area-inset-top,8px);left:0;right:0;padding
 .subrow{display:flex;gap:8px;width:100%}.subbtn{flex:1;background:#07394dd9;border:1px solid #d7f6ff44;border-radius:14px;padding:10px;font-weight:800;font-size:13px}
 .overlay{position:absolute;inset:0;z-index:10;background:#031c2bd9;backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}.overlay.show{display:flex}.sheet{width:min(470px,100%);max-height:86%;overflow:auto;background:linear-gradient(155deg,#14546b,#082d45);border:1px solid #c8efff44;border-radius:24px;padding:20px;box-shadow:0 22px 70px #00162299}.sheet h2{margin:0 0 6px;font-size:23px}.muted{color:#b9dce6;font-size:13px;line-height:1.45}.close{float:right;background:#ffffff18;border-radius:12px;padding:7px 11px}.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff1a}.fishicon{width:58px;height:48px;border-radius:13px;background:linear-gradient(145deg,#73c8ce,#14546b);display:grid;place-items:center;font-size:28px}.iteminfo{flex:1}.iteminfo b{display:block}.iteminfo small{color:#b8dbe5}.buy{background:#f7c56c;color:#503718;padding:9px 12px;border-radius:12px;font-weight:900}.catchcard{text-align:center;padding:12px}.catchart{font-size:76px;filter:drop-shadow(0 10px 15px #001a2c88);margin:10px}.rarity{color:#ffdc8c;font-weight:950;letter-spacing:.15em;font-size:12px}.catchname{font-size:27px;font-weight:1000}.catchsize{color:#c8e9f0;margin:6px}.reward{font-size:18px;color:#ffdf91;font-weight:900;margin:10px}
 @media(orientation:landscape) and (max-height:520px){.boat{top:22%;height:110px}.hud{top:58px}.cast-zone{bottom:10px;width:min(380px,55vw);gap:6px}.message{padding:7px 12px}.mainbtn{padding:12px}.subbtn{padding:7px}.seabed{height:16%}}
+
+.world-art{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
+#game{background:#0a4054}
+.sky,.ocean,.ray,.waterline,.ripple,.bubble,.fish,.boat,.line,.seabed,.coral,.weed{display:none!important}
+header,.hud,.cast-zone{z-index:6}
+header .pill,.location,.message,.subbtn{background:rgba(7,38,48,.78);backdrop-filter:blur(7px)}
+@media(orientation:landscape) and (max-height:520px){.cast-zone{bottom:8px}}
 </style>
 </head>
-<body><div id="game">
+<body><div id="game"><svg class="world-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs>
+ <linearGradient id="skyA" x2="0" y2="1"><stop stop-color="#4b9bd5"/><stop offset=".62" stop-color="#b7dce5"/><stop offset="1" stop-color="#e6d5a9"/></linearGradient>
+ <linearGradient id="lakeA" x2="0" y2="1"><stop stop-color="#4cbbc4"/><stop offset=".36" stop-color="#167c91"/><stop offset="1" stop-color="#073b55"/></linearGradient>
+ <linearGradient id="deepA" x2="0" y2="1"><stop stop-color="#07536c"/><stop offset="1" stop-color="#031e35"/></linearGradient>
+ <linearGradient id="mountA" x2="0" y2="1"><stop stop-color="#eaf4f1"/><stop offset=".22" stop-color="#7898a0"/><stop offset="1" stop-color="#294d56"/></linearGradient>
+ <linearGradient id="woodA" x2="0" y2="1"><stop stop-color="#d99a58"/><stop offset="1" stop-color="#75452e"/></linearGradient>
+ <linearGradient id="fishA" x2="0" y2="1"><stop stop-color="#d9d38b"/><stop offset=".5" stop-color="#719d70"/><stop offset="1" stop-color="#315d59"/></linearGradient>
+ <filter id="softA"><feGaussianBlur stdDeviation="14"/></filter>
+ <pattern id="waterLines" width="180" height="36" patternUnits="userSpaceOnUse"><path d="M0 12 Q40 2 85 12 T180 12" fill="none" stroke="#b5f7ed" stroke-opacity=".22" stroke-width="3"/></pattern>
+</defs>
+<rect width="1600" height="900" fill="url(#skyA)"/>
+<circle cx="1320" cy="125" r="72" fill="#fff1bd" opacity=".82"/><circle cx="1320" cy="125" r="112" fill="#fff1bd" opacity=".22" filter="url(#softA)"/>
+<g fill="#fff" opacity=".6"><path d="M170 145q38-48 82 0 54-32 88 16H138q8-18 32-16Z"/><path d="M950 105q34-39 72 0 40-24 68 15H920q8-15 30-15Z"/></g>
+<!-- distant mountain ridges -->
+<path d="M0 390 160 265 250 335 410 180 530 315 700 130 850 320 1010 205 1170 350 1320 170 1510 330 1600 270V540H0Z" fill="#557d85" opacity=".72"/>
+<path d="M340 390 700 105 930 390Z" fill="url(#mountA)"/><path d="m700 105 65 82-56-20-56 42-43 4Z" fill="#f6fbf1"/><path d="m700 105-100 140 70-34 30 21 38-28 42 30Z" fill="#dce9e4"/>
+<path d="M1030 410 1320 150 1545 410Z" fill="url(#mountA)"/><path d="m1320 150 60 73-52-18-42 36-35-6Z" fill="#f5f7ed"/><path d="m1320 150-110 140 75-28 35 29 52-39 55 45Z" fill="#d7e6e2"/>
+<!-- forested hills -->
+<path d="M0 360Q180 300 340 365T690 350Q900 285 1100 365T1600 330V535H0Z" fill="#315e4e"/>
+<path d="M0 405Q240 340 430 410T820 395Q1120 340 1370 410T1600 390V560H0Z" fill="#244b43"/>
+<g fill="#173f39"><path d="M30 430l42-125 42 125h-25l25 58H5l25-58Z"/><path d="M115 440l38-112 38 112h-23l24 52H90l24-52Z"/><path d="M260 423l47-145 47 145h-28l29 62H230l30-62Z"/><path d="M1440 430l44-130 44 130h-27l27 58h-88l27-58Z"/><path d="M1530 442l36-105 34 105h-20l20 48h-72l22-48Z"/></g>
+<g fill="#47765a"><path d="M75 432l30-90 30 90h-18l18 37H57l18-37Z"/><path d="M350 425l34-105 34 105h-20l21 42h-70l21-42Z"/><path d="M1240 420l34-102 34 102h-20l21 44h-70l21-44Z"/></g>
+<!-- cabin and dock -->
+<g transform="translate(95 330)"><path d="M0 95 122 18 250 95v126H0Z" fill="url(#woodA)" stroke="#553b2d" stroke-width="9"/><path d="M-18 98 122 0 270 98l-18 18L122 38 0 116Z" fill="#653e32" stroke="#382f2b" stroke-width="8"/><path d="M27 112h67v83H27Z" fill="#294c50" stroke="#e0b47c" stroke-width="8"/><path d="M145 113h77v56h-77Z" fill="#86c4c6" stroke="#69432e" stroke-width="9"/><path d="M183 113v56m-38-28h77" stroke="#e4c08a" stroke-width="6"/><path d="M-20 218h300" stroke="#5d4638" stroke-width="13"/></g>
+<path d="M0 525Q270 490 510 530T1000 520T1600 510V900H0Z" fill="url(#lakeA)"/>
+<path d="M0 545Q250 515 470 548T900 540T1300 548T1600 530" fill="none" stroke="#c6f5e7" stroke-width="9" opacity=".7"/>
+<rect y="540" width="1600" height="360" fill="url(#waterLines)" opacity=".8"/>
+<!-- reflections -->
+<g opacity=".23" fill="#d4fff1"><path d="M60 590h240l-60 8H20Z"/><path d="M430 620h350l-100 7H390Z"/><path d="M980 580h280l-80 8H940Z"/><path d="M1280 640h230l-65 7h-210Z"/></g>
+<!-- waterline and submerged gradient -->
+<path d="M0 620Q200 600 400 620T800 615T1200 622T1600 610V900H0Z" fill="url(#deepA)" opacity=".78"/>
+<!-- submerged rocks and weeds -->
+<path d="M0 850Q130 780 270 830T530 845Q680 770 820 830T1110 845Q1290 770 1600 825V900H0Z" fill="#314d45"/>
+<g fill="#4b7460"><path d="M90 850q-30-90 10-145 2 75 30 110-5-95 38-135 0 100-20 170Z"/><path d="M300 865q-20-80 10-125 5 70 28 95-4-80 35-112 0 88-20 142Z"/><path d="M1300 855q-30-90 8-150 0 78 30 112-3-90 38-130 0 94-20 168Z"/><path d="M1450 860q-20-80 8-130 4 65 30 96-3-76 36-112 0 86-18 146Z"/></g>
+<g fill="#607c6a" stroke="#243e3d" stroke-width="5"><ellipse cx="210" cy="855" rx="145" ry="42"/><ellipse cx="1040" cy="870" rx="180" ry="38"/><ellipse cx="1490" cy="850" rx="130" ry="43"/></g>
+<!-- detailed swimming fish -->
+<g transform="translate(610 710) scale(1.15)"><path d="M-75 0Q-25-60 60-28Q105 0 60 28Q-25 60-75 0Z" fill="url(#fishA)" stroke="#244b4b" stroke-width="5"/><path d="M-72 0-130-42-120 0-130 42Z" fill="#729d79" stroke="#244b4b" stroke-width="5"/><path d="M-10-28 10-57 30-25M-8 28 20 52 38 25" fill="#8fae83" stroke="#315b54" stroke-width="4"/><circle cx="48" cy="-8" r="7" fill="#fff"/><circle cx="50" cy="-8" r="3.5" fill="#1b3030"/><path d="M-25-20q24 18 0 40m22-42q24 18 0 40m22-39q24 18 0 36" fill="none" stroke="#d8d69b" stroke-width="3" opacity=".7"/></g>
+<g transform="translate(1110 770) scale(.78)"><path d="M-75 0Q-25-60 60-28Q105 0 60 28Q-25 60-75 0Z" fill="#b6a76d" stroke="#3b5b4d" stroke-width="5"/><path d="M-72 0-130-42-120 0-130 42Z" fill="#8c9563" stroke="#3b5b4d" stroke-width="5"/><circle cx="48" cy="-8" r="7" fill="#fff"/><circle cx="50" cy="-8" r="3.5" fill="#1b3030"/></g>
+<g fill="none" stroke="#a8f6e9" stroke-width="4" opacity=".42"><path d="M430 685q55-18 110 0"/><path d="M900 735q45-16 90 0"/><path d="M1260 690q60-16 120 0"/></g>
+</svg>
 <div class="sky"><div class="sun"></div><div class="cloud"></div></div><div class="ocean"></div><div class="ray"></div><div class="ray r2"></div><div class="ray r3"></div><div class="waterline"></div><div class="ripple"></div>
 <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
 <div class="fish f1"><svg viewBox="0 0 120 70"><defs><linearGradient id="fishgold" x2="0" y2="1"><stop stop-color="#ffe69a"/><stop offset="1" stop-color="#dc873f"/></linearGradient></defs><path d="M23 35Q48 3 88 25Q103 35 88 48Q48 67 23 35Z" fill="url(#fishgold)" stroke="#8d5b37" stroke-width="2"/><path d="M24 35L2 13Q7 35 2 57Z" fill="#e89a52" stroke="#8d5b37" stroke-width="2"/><path d="M51 17Q65 3 74 18M51 53Q66 65 77 51" fill="#f9c76f" stroke="#b87642" stroke-width="2"/><circle cx="79" cy="30" r="4" fill="#fff"/><circle cx="80" cy="30" r="2" fill="#142d37"/></svg></div>
