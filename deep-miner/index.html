@@ -44,7 +44,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 <div id="app">
 <canvas id="world"></canvas>
 <div class="hud top"><div class="brand">ISLAND <span>BUILDER</span></div><div class="resources"><div class="resource">🪙 <b id="coins">120</b></div><div class="resource">🪵 <b id="wood">35</b></div><div class="resource">⭐ <b id="level">1</b></div></div></div>
-<div id="hint">Choose a building, then tap a glowing plot</div>
+<div id="hint">Choose a building, then tap anywhere on the island</div>
 <div class="side"><button class="action" id="collect">📦 Collect</button><button class="action" id="expand">＋ Expand island</button><button class="action" id="menu">☰ Menu</button></div>
 <div class="bottom"><div class="buildbar" id="buildbar">
 <button class="build selected" data-type="hut"><span class="emoji">🏡</span>Hut<small>35 🪙 · 8 🪵</small></button>
@@ -93,7 +93,8 @@ ctx.save();ctx.shadowColor='#164a36aa';ctx.shadowBlur=9;ctx.fillStyle='#8b603c';
 ctx.strokeStyle='#b78352';ctx.lineWidth=2;for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(1,-8-i*9);ctx.lineTo(5,-12-i*9);ctx.stroke();}
 for(let i=0;i<9;i++){let a=i*Math.PI*2/9;ctx.save();ctx.translate(4,-46);ctx.rotate(a);let leaf=ctx.createLinearGradient(0,-2,0,-42);leaf.addColorStop(0,'#397b48');leaf.addColorStop(.55,'#65a95b');leaf.addColorStop(1,'#8bc66b');ctx.fillStyle=leaf;ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(19,-17,3,-43);ctx.quadraticCurveTo(-3,-21,0,0);ctx.fill();ctx.strokeStyle='rgba(225,241,166,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(3,-39);ctx.stroke();ctx.restore();}
 ellipse(0,1,8,3,'#d8bd78');ctx.restore();}
-function drawBuilding(b){let p=plots[b.plot];if(!p)return;let x=p.x,y=p.y;
+function buildingPosition(b){if(Number.isFinite(b.u)&&Number.isFinite(b.v))return{x:island.x+b.u*island.rx,y:island.y+b.v*island.ry};let p=plots[b.plot];return p?{x:p.x,y:p.y}:null;}
+function drawBuilding(b){let pos=buildingPosition(b);if(!pos)return;let x=pos.x,y=pos.y;
 if(b.type==='tree'){drawPalm(x,y+9,.92);return;}
 ctx.save();ctx.shadowColor='rgba(14,49,40,.32)';ctx.shadowBlur=9;ctx.shadowOffsetY=7;ellipse(x,y+10,31,11,'rgba(21,61,46,.3)');ctx.restore();
 if(b.type==='hut'||b.type==='lodge'){let w=b.type==='hut'?40:52,h=b.type==='hut'?29:36;
@@ -105,18 +106,19 @@ if(b.type==='lodge'){ctx.fillStyle='#d7c29a';ctx.fillRect(x-8,y-h-30,16,15);ctx.
 if(b.type==='farm'){ctx.fillStyle='#a77948';ctx.beginPath();ctx.moveTo(x-29,y-7);ctx.lineTo(x-23,y-25);ctx.lineTo(x+24,y-25);ctx.lineTo(x+30,y-7);ctx.closePath();ctx.fill();for(let i=0;i<6;i++){let xx=x-21+i*8;ctx.strokeStyle='#e3c078';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xx,y-23);ctx.lineTo(xx+3,y-9);ctx.stroke();}for(let i=0;i<5;i++){let xx=x-18+i*9;ctx.strokeStyle='#4c8b4e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xx,y-21);ctx.quadraticCurveTo(xx-5,y-31,xx-1,y-34);ctx.moveTo(xx,y-21);ctx.quadraticCurveTo(xx+5,y-31,xx+3,y-34);ctx.stroke();ellipse(xx,y-28,3,5,'#a6c96c');}}
 if(b.type==='lighthouse'){ctx.fillStyle='#f4e8ca';ctx.beginPath();ctx.moveTo(x-13,y);ctx.lineTo(x-10,y-43);ctx.lineTo(x+10,y-43);ctx.lineTo(x+13,y);ctx.closePath();ctx.fill();ctx.fillStyle='#c95d4c';ctx.fillRect(x-12,y-33,24,8);ctx.fillRect(x-11,y-16,23,7);ctx.fillStyle='#d9c49b';ctx.fillRect(x-14,y-45,28,4);ctx.fillStyle='#f5d77f';ctx.fillRect(x-10,y-55,20,10);ctx.fillStyle='#ffeeb0';ctx.fillRect(x-5,y-53,10,7);ctx.strokeStyle='rgba(255,245,190,.55)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+12,y-51);ctx.lineTo(x+37,y-58);ctx.stroke();}
 }function draw(t){drawOcean(t);drawIsland();drawPalm(island.x-island.rx*.78,island.y-island.ry*.58,.85);drawPalm(island.x+island.rx*.76,island.y+island.ry*.45,.72);
-plots.forEach((p,i)=>{let b=state.buildings.find(z=>z.plot===i);if(!b){ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=state.selected?'rgba(255,238,169,.6)':'rgba(255,255,255,.2)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(p.x,p.y+4,17,7,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();} });
-state.buildings.slice().sort((a,b)=>plots[a.plot].y-plots[b.plot].y).forEach(drawBuilding);
+state.buildings.slice().sort((a,b)=>(buildingPosition(a)?.y||0)-(buildingPosition(b)?.y||0)).forEach(drawBuilding);
 ctx.fillStyle='rgba(255,248,213,.8)';ctx.font='800 12px system-ui';ctx.textAlign='center';ctx.fillText('SUNSHORE ISLAND',island.x,island.y+island.ry*.76);
 requestAnimationFrame(draw);}
 function updateUI(){$('coins').textContent=Math.floor(state.coins);$('wood').textContent=Math.floor(state.wood);$('level').textContent=state.level;document.querySelectorAll('.build').forEach(b=>b.classList.toggle('selected',b.dataset.type===state.selected));}
 function say(s){let el=$('toast');el.textContent=s;el.style.opacity=1;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.opacity=0,1500);}
-function pickBuild(type){state.selected=type;updateUI();say('Tap an empty plot to place '+labels[type]);}
+function pickBuild(type){state.selected=type;updateUI();say('Tap anywhere on the island to place '+labels[type]);}
 document.querySelectorAll('.build').forEach(b=>b.addEventListener('click',()=>pickBuild(b.dataset.type)));
-function place(x,y){let best=-1,dist=1e9;plots.forEach((p,i)=>{let d=Math.hypot(x-p.x,y-p.y);if(d<dist){dist=d;best=i;}});if(best<0||dist>Math.max(30,plots[best].r*1.5))return;
-if(state.buildings.some(b=>b.plot===best)){say('That plot is occupied');return;}
+function place(x,y){let nx=(x-island.x)/island.rx,ny=(y-island.y)/island.ry;
+if(nx*nx+ny*ny>.82){say('Place buildings on the island, not in the water');return;}
+const spacing=state.selected==='lighthouse'?42:state.selected==='lodge'?38:32;
+for(const b of state.buildings){const p=buildingPosition(b);if(p&&Math.hypot(x-p.x,y-p.y)<spacing){say('There is not enough room there');return;}}
 let [c,w]=costs[state.selected];if(state.coins<c||state.wood<w){say('Not enough resources');return;}
-state.coins-=c;state.wood-=w;state.buildings.push({plot:best,type:state.selected});state.level=1+Math.floor(state.buildings.length/4);save();updateUI();say(labels[state.selected]+' built!');}
+state.coins-=c;state.wood-=w;state.buildings.push({u:nx,v:ny,type:state.selected});state.level=1+Math.floor(state.buildings.length/4);save();updateUI();say(labels[state.selected]+' built!');}
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;place(e.clientX,e.clientY);});
 $('collect').onclick=()=>{let gain=0,wood=0;state.buildings.forEach(b=>{if(b.type==='hut')gain+=5;if(b.type==='farm'){gain+=3;wood+=2}if(b.type==='lodge')gain+=10;if(b.type==='lighthouse')gain+=14;if(b.type==='tree')wood+=3;});state.coins+=gain;state.wood+=wood;state.lastCollect=Date.now();save();updateUI();say('Collected +'+gain+' coins and +'+wood+' wood');};
 $('expand').onclick=()=>{let cost=100+state.expanded*90;if(state.coins<cost){say('Need '+cost+' coins to expand');return;}if(state.expanded>=2){say('Your island is fully expanded!');return;}state.coins-=cost;state.expanded++;layout();save();updateUI();say('New shoreline unlocked!');};
