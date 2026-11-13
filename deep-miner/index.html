@@ -1,105 +1,120 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#101b2b">
-<title>Deep Miner</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#102c42">
+<title>Island Builder</title>
 <style>
-:root{--bg:#101b2b;--panel:#1b2b40;--panel2:#243951;--gold:#ffc85a;--mint:#67e0b1;--muted:#9db1c8}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:#f5f7fb;font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
-body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}button{font:inherit;color:inherit;border:0;touch-action:manipulation;cursor:pointer}
-#app{height:100dvh;max-width:560px;margin:auto;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 5%,#263d55 0,#14243a 48%,#101b2b 100%);overflow:hidden}
-header{padding:12px 16px 9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brand{font-weight:1000;letter-spacing:1.5px;font-size:19px}.brand span{color:var(--gold)}.depth{text-align:right;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:1px}.depth b{display:block;color:white;font-size:20px;letter-spacing:0}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 10px}.stat{background:#20334a;border:1px solid #344d66;border-radius:13px;padding:8px 10px;box-shadow:0 4px 12px #07111d55}.stat small{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.7px}.stat strong{display:block;font-size:16px;margin-top:1px}
-#mineArea{position:relative;flex:1;min-height:0;margin:0 9px;border-radius:20px;overflow:hidden;border:2px solid #344b62;background:#17283b;box-shadow:inset 0 0 35px #07111caa}
-canvas{display:block;width:100%;height:100%;touch-action:none}
-#hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#0c1825cc;border:1px solid #52677c;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:800;color:#dce8f5;pointer-events:none}
-#toast{position:absolute;left:50%;bottom:12px;transform:translate(-50%,12px);opacity:0;background:#0c1928ee;border:1px solid #71859a;border-radius:12px;padding:9px 14px;font-size:12px;font-weight:900;pointer-events:none;transition:.2s;white-space:nowrap}#toast.show{opacity:1;transform:translate(-50%,0)}
-.bottom{padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.action{border-radius:15px;padding:10px 5px;background:linear-gradient(180deg,#2c4660,#20354b);border:1px solid #49627b;box-shadow:0 4px 0 #102032;font-weight:900;font-size:12px;min-height:53px}.action .emoji{font-size:19px;display:block;margin-bottom:1px}.action:active{transform:translateY(2px);box-shadow:0 2px 0 #102032}.action.primary{background:linear-gradient(180deg,#ffda79,#f2a93b);color:#422b08;border-color:#ffe29b}
-#modal{position:fixed;inset:0;background:#07111dcc;display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:5}#modal.open{display:flex}.sheet{width:min(100%,540px);max-height:82dvh;overflow:auto;background:linear-gradient(180deg,#263c54,#17283c);border:1px solid #526a82;border-radius:23px;padding:18px;box-shadow:0 20px 70px #0009}.sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.sheet h2{margin:0;font-size:21px}.close{background:#40566c;border-radius:10px;width:35px;height:35px;font-size:20px}.upgrade{display:flex;align-items:center;gap:12px;background:#1a2c40;border:1px solid #3a536c;border-radius:15px;padding:12px;margin:9px 0}.upgrade .ico{font-size:27px}.upgrade .info{flex:1;min-width:0}.upgrade b{display:block}.upgrade small{color:var(--muted);font-size:11px}.buy{background:#eeb64e;color:#392608;border-radius:10px;padding:9px 11px;font-weight:1000;font-size:12px;min-width:78px}.buy:disabled{opacity:.38}.inventory{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.ore{background:#1a2c40;border:1px solid #3a536c;border-radius:12px;padding:10px;font-size:12px}.ore b{float:right;color:#fff}
-@media(min-width:600px){#app{height:100dvh;border-left:1px solid #31465d;border-right:1px solid #31465d}.bottom{padding-bottom:14px}}
-/* Full-screen landscape play layout */
-html,body{width:100%;height:100%;height:100dvh}
-#app{width:100%;max-width:none;height:100dvh;margin:0}
-#mineArea{flex:1;min-height:0;margin:0 8px}
-#rotateNotice{display:none;position:fixed;inset:0;z-index:20;background:#101b2b;color:#f5f7fb;align-items:center;justify-content:center;text-align:center;padding:28px}
-#rotateNotice .noticeCard{max-width:300px}
-#rotateNotice .phoneIcon{font-size:48px;display:block;margin-bottom:12px}
-@media(orientation:portrait){#rotateNotice{display:flex}#app,#modal{visibility:hidden}}
-@media(orientation:landscape){header{padding:calc(4px + env(safe-area-inset-top)) 14px 3px}.brand{font-size:16px}.depth b{font-size:16px}.stats{padding:0 12px 5px;gap:7px}.stat{padding:4px 9px}.stat strong{font-size:14px}.bottom{padding:5px 12px calc(5px + env(safe-area-inset-bottom));gap:8px}.action{min-height:38px;padding:5px;font-size:11px}.action .emoji{font-size:15px;display:inline;margin:0 5px 0 0}}
-@media(min-width:600px){#app{border:0}}
-</style></head>
-<body><div id="app">
-<header><div class="brand">⛏️ DEEP <span>MINER</span></div><div class="depth">CURRENT DEPTH<b id="depth">0 m</b></div></header>
-<div class="stats"><div class="stat"><small>🪙 COINS</small><strong id="coins">0</strong></div><div class="stat"><small>⚡ PICKAXE POWER</small><strong id="power">1</strong></div><div class="stat"><small>🎒 ORE BAG</small><strong id="bag">0 / 30</strong></div></div>
-<div id="mineArea"><canvas id="game"></canvas><div id="hint">SIDE-VIEW MINING • TAP A NEARBY BLOCK</div><div id="toast"></div></div>
-<div class="bottom"><button class="action" id="upgradeBtn"><span class="emoji">🛠️</span>UPGRADES</button><button class="action primary" id="sellBtn"><span class="emoji">💰</span>SELL ORES</button><button class="action" id="bagBtn"><span class="emoji">🎒</span>COLLECTION</button></div>
+:root{color-scheme:dark;--ink:#f5f4e9;--muted:#b8d0d0;--glass:rgba(12,38,52,.82);--line:rgba(221,246,235,.18);--gold:#ffd36e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#102c42;color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;user-select:none}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#app{position:relative;width:100%;height:100dvh;overflow:hidden;background:linear-gradient(#76c6d0 0%,#268ca7 55%,#14647f 100%)}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{position:absolute;z-index:3;display:flex;align-items:center;gap:8px;pointer-events:none}
+.top{top:calc(10px + env(safe-area-inset-top));left:12px;right:12px;justify-content:space-between}
+.brand,.resources,.panel,.buildbar{background:var(--glass);border:1px solid var(--line);box-shadow:0 8px 24px #09273755;backdrop-filter:blur(12px)}
+.brand{padding:9px 13px;border-radius:15px;font-weight:1000;letter-spacing:1.5px;font-size:clamp(13px,2.2vw,18px);text-shadow:0 2px 0 #16495a}
+.brand span{color:var(--gold)}
+.resources{display:flex;gap:clamp(7px,2vw,18px);padding:8px 13px;border-radius:15px;font-weight:850;font-size:clamp(11px,1.8vw,15px)}
+.resource{white-space:nowrap}.resource b{color:var(--gold);font-variant-numeric:tabular-nums}
+.side{position:absolute;z-index:3;right:12px;top:76px;display:flex;flex-direction:column;gap:8px}
+.action{border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:13px;padding:10px 13px;font-weight:850;font-size:12px;box-shadow:0 6px 18px #09273755;backdrop-filter:blur(10px)}
+.action:active,.build:active{transform:translateY(1px) scale(.98)}
+.bottom{position:absolute;z-index:4;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(760px,calc(100% - 22px))}
+.buildbar{display:flex;gap:7px;padding:8px;border-radius:18px;justify-content:center}
+.build{flex:1;min-width:0;max-width:132px;border:1px solid #d9eee51c;border-radius:13px;background:linear-gradient(160deg,#315b62,#1a414e);color:#f7f3df;padding:8px 5px 7px;font-weight:850;font-size:clamp(10px,1.6vw,13px);display:flex;flex-direction:column;align-items:center;gap:3px}
+.build .emoji{font-size:clamp(20px,3.6vw,30px);line-height:1.15}.build small{color:#c1d8d2;font-size:10px;font-weight:700}.build.selected{outline:2px solid var(--gold);background:linear-gradient(160deg,#6e6748,#355b55)}
+#hint{position:absolute;z-index:3;left:50%;top:76px;transform:translateX(-50%);padding:8px 13px;border-radius:20px;background:#10384cbb;border:1px solid #d8f1df33;color:#f7f4df;font-size:12px;font-weight:800;white-space:nowrap;pointer-events:none;text-align:center}
+#toast{position:absolute;z-index:8;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 18px;border-radius:14px;background:#102f3eee;border:1px solid #e8f2d966;font-weight:900;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center}
+#rotate{display:none;position:absolute;inset:0;z-index:20;background:#102c42;align-items:center;justify-content:center;text-align:center;padding:30px}
+#rotate .inner{max-width:280px}.phone{font-size:48px;margin-bottom:10px}
+#modal{display:none;position:absolute;inset:0;z-index:10;background:#061c29aa;align-items:center;justify-content:center;padding:20px}
+.dialog{width:min(390px,100%);background:#153c4b;border:1px solid #d9eee544;border-radius:22px;padding:20px;box-shadow:0 20px 60px #061b2c99}
+.dialog h2{margin:0 0 8px;font-size:22px}.dialog p{color:#c1d8d2;font-size:13px;line-height:1.5}
+.dialog button{width:100%;padding:12px;border-radius:12px;background:#e8bd62;color:#233d42;font-weight:950;margin-top:8px}
+@media(orientation:portrait){#rotate{display:flex}#app>*:not(#rotate){visibility:hidden}}
+@media(max-height:430px) and (orientation:landscape){.top{top:6px}.brand{padding:6px 10px}.resources{padding:6px 9px}.side{top:56px;right:8px}.action{padding:7px 10px}.bottom{bottom:5px}.buildbar{padding:5px}.build{padding:5px 3px}.build .emoji{font-size:20px}#hint{top:55px}}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="world"></canvas>
+<div class="hud top"><div class="brand">ISLAND <span>BUILDER</span></div><div class="resources"><div class="resource">🪙 <b id="coins">120</b></div><div class="resource">🪵 <b id="wood">35</b></div><div class="resource">⭐ <b id="level">1</b></div></div></div>
+<div id="hint">Choose a building, then tap a glowing plot</div>
+<div class="side"><button class="action" id="collect">📦 Collect</button><button class="action" id="expand">＋ Expand island</button><button class="action" id="menu">☰ Menu</button></div>
+<div class="bottom"><div class="buildbar" id="buildbar">
+<button class="build selected" data-type="hut"><span class="emoji">🏡</span>Hut<small>35 🪙 · 8 🪵</small></button>
+<button class="build" data-type="farm"><span class="emoji">🌾</span>Farm<small>55 🪙 · 12 🪵</small></button>
+<button class="build" data-type="lodge"><span class="emoji">🏘️</span>Lodge<small>90 🪙 · 18 🪵</small></button>
+<button class="build" data-type="lighthouse"><span class="emoji">🗼</span>Beacon<small>120 🪙 · 25 🪵</small></button>
+<button class="build" data-type="tree"><span class="emoji">🌳</span>Grove<small>20 🪙</small></button>
+</div></div>
+<div id="toast"></div>
+<div id="modal"><div class="dialog"><h2 id="modalTitle">Island menu</h2><p id="modalText">Your island is growing.</p><button id="saveClose">Back to island</button><button id="reset">Start a new island</button></div></div>
+<div id="rotate"><div class="inner"><div class="phone">📱 ↻</div><h2>Turn your device sideways</h2><p>Island Builder is designed for a wide, immersive view.</p></div></div>
 </div>
-<div id="rotateNotice"><div class="noticeCard"><span class="phoneIcon">📱 ↻</span><b>Rotate your phone</b><p>Deep Miner is designed to play horizontally.</p></div></div>
-<div id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">Upgrades</h2><button class="close" id="close">×</button></div><div id="modalBody"></div></div></div>
 <script>
-(()=>{'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),area=document.getElementById('mineArea');
+(()=>{
+const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-const ores=[
-{name:'Stone',emoji:'🪨',value:1,hp:1,color:'#82909c',min:0},
-{name:'Copper',emoji:'🟠',value:4,hp:2,color:'#c77a4a',min:3},
-{name:'Iron',emoji:'⚙️',value:8,hp:3,color:'#aebbc7',min:8},
-{name:'Silver',emoji:'🥈',value:18,hp:4,color:'#c7d6e5',min:16},
-{name:'Gold',emoji:'🟡',value:35,hp:5,color:'#ffd15b',min:25},
-{name:'Ruby',emoji:'💎',value:75,hp:7,color:'#ff6688',min:40},
-{name:'Sapphire',emoji:'🔷',value:130,hp:9,color:'#63b9ff',min:60},
-{name:'Emerald',emoji:'💚',value:220,hp:12,color:'#5be0a2',min:85},
-{name:'Amethyst',emoji:'🔮',value:400,hp:15,color:'#bd8aff',min:115}
-];
-const defaults={coins:0,power:1,bag:[],counts:{},depth:0,capacity:30,upgrades:{power:0,capacity:0},seen:[]};
-let save;try{save={...defaults,...JSON.parse(localStorage.getItem('deepMinerSave')||'{}')};}catch(e){save={...defaults};}
-let grid=[],cols=9,tile=42,camY=0,player={x:4,y:0},shake=0,particles=[],lastToast=0;
-const rand=(a,b)=>Math.floor(Math.random()*(b-a+1));
-function genRow(y){let row=[];for(let x=0;x<cols;x++){let depth=y*4;let pool=ores.filter(o=>o.min<=depth);let weights=pool.map((o,i)=>i===0?44:Math.max(2,24-i*3));let total=weights.reduce((a,b)=>a+b,0),r=Math.random()*total,idx=0;while(idx<weights.length-1&&(r-=weights[idx])>0)idx++;let o=pool[idx];if(y===0)o=ores[0];row.push({ore:o,hp:o.hp,seed:Math.random()*10});}return row;}
-function ensureRows(){while(grid.length<Math.max(40,player.y+24))grid.push(genRow(grid.length));}
-function persist(){try{localStorage.setItem('deepMinerSave',JSON.stringify(save));}catch(e){}}
-function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(lastToast);lastToast=setTimeout(()=>$('toast').classList.remove('show'),1450);}
-function updateUI(){$('coins').textContent=Math.floor(save.coins).toLocaleString();$('power').textContent=save.power;$('bag').textContent=save.bag.length+' / '+save.capacity;$('depth').textContent=(player.y*4)+' m';}
-function resize(){let r=area.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.floor(r.width*d);canvas.height=Math.floor(r.height*d);ctx.setTransform(d,0,0,d,0,0);cols=9;tile=Math.max(30,Math.min(76,r.width/cols));}
-function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
-function drawBlock(x,y,b,sx,sy){let o=b.ore,depth=y*4,seed=b.seed||0;let base=depth<10?'#526477':depth<35?'#3c4d60':'#29394c';let grad=ctx.createLinearGradient(sx,sy,sx+tile,sy+tile);grad.addColorStop(0,base);grad.addColorStop(.55,'#34475b');grad.addColorStop(1,'#1c2c3e');ctx.fillStyle=grad;ctx.beginPath();let edge=[];for(let i=0;i<8;i++)edge.push([sx+tile*(i/7),sy+tile*(.04+.08*Math.sin(seed*9+i*5.7))]);for(let i=0;i<8;i++)edge.push([sx+tile*(.96+.08*Math.cos(seed*4+i*4.1)),sy+tile*(i/7)]);for(let i=0;i<8;i++)edge.push([sx+tile*(1-i/7),sy+tile*(.96+.08*Math.sin(seed*7+i*3.2))]);for(let i=0;i<8;i++)edge.push([sx+tile*(.04+.08*Math.cos(seed*6+i*2.8)),sy+tile*(1-i/7)]);edge.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fill();ctx.save();ctx.beginPath();edge.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.clip();
-ctx.fillStyle='#a9bac822';ctx.beginPath();ctx.moveTo(sx+tile*.05,sy+tile*.13);ctx.lineTo(sx+tile*.47,sy+tile*.02);ctx.lineTo(sx+tile*.72,sy+tile*.31);ctx.lineTo(sx+tile*.25,sy+tile*.4);ctx.closePath();ctx.fill();ctx.fillStyle='#07132130';ctx.beginPath();ctx.moveTo(sx+tile*.54,sy+tile*.38);ctx.lineTo(sx+tile,sy+tile*.22);ctx.lineTo(sx+tile*.92,sy+tile*.86);ctx.lineTo(sx+tile*.4,sy+tile*.72);ctx.closePath();ctx.fill();
-for(let band=0;band<3;band++){let by=sy+tile*(.22+band*.25)+Math.sin(seed*8+band)*tile*.035;ctx.strokeStyle=band%2?'#a8b9c018':'#0b172522';ctx.lineWidth=Math.max(1,tile*.035);ctx.beginPath();ctx.moveTo(sx+tile*.08,by);ctx.lineTo(sx+tile*.42,by+tile*.035);ctx.lineTo(sx+tile*.9,by-tile*.025);ctx.stroke();}
-for(let i=0;i<5;i++){let px=sx+tile*(.12+((Math.sin(seed*31+i*17)+1)*.38)),py=sy+tile*(.12+((Math.cos(seed*19+i*11)+1)*.38));ctx.fillStyle=i%2?'#d4dfdf20':'#07152230';ctx.fillRect(px,py,Math.max(1,tile*.035),Math.max(1,tile*.035));}
-if(o!==ores[0]){ctx.save();ctx.shadowColor=o.color;ctx.shadowBlur=tile*.14;ctx.strokeStyle=o.color;ctx.lineWidth=Math.max(2,tile*.105);ctx.lineJoin='bevel';ctx.beginPath();ctx.moveTo(sx+tile*(.18+Math.sin(seed)*.08),sy+tile*.77);ctx.lineTo(sx+tile*.37,sy+tile*.55);ctx.lineTo(sx+tile*.48,sy+tile*.6);ctx.lineTo(sx+tile*.67,sy+tile*.25);ctx.stroke();ctx.restore();ctx.fillStyle=o.color;ctx.beginPath();ctx.moveTo(sx+tile*.35,sy+tile*.55);ctx.lineTo(sx+tile*.43,sy+tile*.35);ctx.lineTo(sx+tile*.5,sy+tile*.51);ctx.lineTo(sx+tile*.45,sy+tile*.67);ctx.closePath();ctx.fill();ctx.fillStyle='#ffffff66';ctx.beginPath();ctx.moveTo(sx+tile*.43,sy+tile*.39);ctx.lineTo(sx+tile*.49,sy+tile*.5);ctx.lineTo(sx+tile*.46,sy+tile*.57);ctx.closePath();ctx.fill();}
-ctx.restore();ctx.strokeStyle='#91a6b455';ctx.lineWidth=1;ctx.beginPath();edge.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
-if(b.hp<o.hp){ctx.strokeStyle='#101a28';ctx.lineWidth=Math.max(2,tile*.045);ctx.beginPath();ctx.moveTo(sx+tile*.48,sy+tile*.12);ctx.lineTo(sx+tile*.39,sy+tile*.43);ctx.lineTo(sx+tile*.58,sy+tile*.58);ctx.lineTo(sx+tile*.47,sy+tile*.88);ctx.stroke();ctx.strokeStyle='#c4d1d455';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx+tile*.48,sy+tile*.12);ctx.lineTo(sx+tile*.39,sy+tile*.43);ctx.stroke();}}
-function draw(){let w=area.clientWidth,h=area.clientHeight;ctx.clearRect(0,0,w,h);let target=Math.max(0,player.y*tile-h*.52);camY+=(target-camY)*.13;let offset=(h%tile)/2;
-let start=Math.max(0,Math.floor(camY/tile)),end=Math.min(grid.length-1,start+Math.ceil(h/tile)+2);
-for(let y=start;y<=end;y++)for(let x=0;x<cols;x++){let sx=(w-cols*tile)/2+x*tile,sy=y*tile-camY;drawBlock(x,y,grid[y][x],sx,sy);}
-let px=(w-cols*tile)/2+player.x*tile,py=player.y*tile-camY;
-ctx.save();ctx.translate(px+tile/2,py+tile/2+Math.sin(Date.now()/180)*1.2);ctx.shadowColor='#ffd46a';ctx.shadowBlur=10;
-// side-profile miner: helmet, face, backpack, torso, legs and raised pickaxe
-ctx.fillStyle='#c47b32';rounded(-tile*.25,-tile*.02,tile*.23,tile*.43,5);ctx.fill();
-ctx.fillStyle='#e7a83f';rounded(-tile*.08,-tile*.16,tile*.35,tile*.42,6);ctx.fill();
-ctx.shadowBlur=0;ctx.fillStyle='#f2c69a';ctx.beginPath();ctx.arc(tile*.12,-tile*.29,tile*.17,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#ffd45c';ctx.beginPath();ctx.arc(tile*.1,-tile*.37,tile*.2,Math.PI,Math.PI*2);ctx.lineTo(tile*.3,-tile*.28);ctx.lineTo(-tile*.09,-tile*.28);ctx.closePath();ctx.fill();
-ctx.fillStyle='#26384b';ctx.beginPath();ctx.arc(tile*.23,-tile*.29,1.5,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle='#25384c';ctx.lineWidth=tile*.09;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(tile*.02,tile*.28);ctx.lineTo(-tile*.03,tile*.43);ctx.moveTo(tile*.18,tile*.27);ctx.lineTo(tile*.27,tile*.42);ctx.stroke();
-ctx.strokeStyle='#e6edf3';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(tile*.22,-tile*.02);ctx.lineTo(tile*.42,-tile*.34);ctx.stroke();ctx.strokeStyle='#f4c45b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(tile*.34,-tile*.35);ctx.lineTo(tile*.5,-tile*.35);ctx.stroke();ctx.restore();
-for(let p of particles){ctx.globalAlpha=Math.max(0,p.life/30);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life--;}particles=particles.filter(p=>p.life>0);
+const costs={hut:[35,8],farm:[55,12],lodge:[90,18],lighthouse:[120,25],tree:[20,0]};
+const labels={hut:'Hut',farm:'Farm',lodge:'Lodge',lighthouse:'Beacon',tree:'Grove'};
+let state={coins:120,wood:35,level:1,expanded:0,buildings:[],selected:'hut',lastCollect:Date.now()};
+const saved=localStorage.getItem('island-builder-save');if(saved){try{state={...state,...JSON.parse(saved)}}catch(e){}}
+let W=0,H=0,dpr=1,plots=[],island={x:0,y:0,rx:0,ry:0},toastTimer;
+function save(){localStorage.setItem('island-builder-save',JSON.stringify(state));}
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);layout();}
+function layout(){island={x:W*.48,y:H*.53,rx:Math.min(W*.34,360),ry:Math.min(H*.34,190)};plots=[];let coords=[[-.62,-.25],[-.32,-.38],[0,-.4],[.32,-.34],[.62,-.2],[-.72,.08],[-.4,.02],[-.08,.04],[.25,.05],[.58,.1],[-.56,.34],[-.23,.35],[.12,.34],[.46,.34],[.76,.3],[-.05,-.08],[.35,-.12],[-.78,-.08]];
+coords.forEach(([x,y],i)=>{if(i<10+state.expanded*3)plots.push({x:island.x+x*island.rx,y:island.y+y*island.ry,r:Math.min(26,W*.027)})});}
+function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function ellipse(x,y,rx,ry,fill){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill()}
+function drawOcean(t){let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#77cbd1');g.addColorStop(.55,'#238eaa');g.addColorStop(1,'#10566f');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+for(let i=0;i<34;i++){let x=((i*137+t*.012)% (W+180))-90,y=(i*83+Math.sin(t*.0005+i)*16)%H;ctx.strokeStyle='rgba(221,250,235,'+(0.07+(i%3)*.025)+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,y,15+(i%5)*5,2,0,0,Math.PI*2);ctx.stroke();}}
+function drawIsland(){let {x,y,rx,ry}=island;
+ctx.save();ctx.shadowColor='#08394a99';ctx.shadowBlur=30;ctx.shadowOffsetY=18;ellipse(x,y+12,rx*1.08,ry*1.08,'#b9824d');ctx.restore();
+ellipse(x,y+4,rx*1.06,ry*1.05,'#d3a66b');ellipse(x,y,rx*1.02,ry*1.02,'#e9d69a');
+let g=ctx.createLinearGradient(x,y-ry,x,y+ry);g.addColorStop(0,'#79b978');g.addColorStop(.6,'#4f9b68');g.addColorStop(1,'#327e60');ellipse(x,y-3,rx,ry,g);
+ctx.save();ctx.beginPath();ctx.ellipse(x,y-3,rx,ry,0,0,Math.PI*2);ctx.clip();
+for(let i=0;i<110;i++){let a=i*2.399,rr=Math.sqrt((i*37%109)/109),px=x+Math.cos(a)*rr*rx*.93,py=y-3+Math.sin(a)*rr*ry*.9;ellipse(px,py,2+(i%4),1.5+(i%3),'rgba(208,224,143,'+(0.12+(i%3)*.04)+')');}
+ctx.restore();
+ellipse(x-rx*.78,y-ry*.55,rx*.12,ry*.11,'#d8c58b');
+}
+function drawPalm(x,y,s=1){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.strokeStyle='#8a5a35';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(-4,-22,4,-42);ctx.stroke();ctx.fillStyle='#287b52';for(let i=0;i<6;i++){ctx.save();ctx.rotate(i*Math.PI/3);ctx.beginPath();ctx.ellipse(9,-43,18,5,.25,0,Math.PI*2);ctx.fill();ctx.restore()}ellipse(0,1,8,3,'#d8bd78');ctx.restore();}
+function drawBuilding(b){let p=plots[b.plot];if(!p)return;let x=p.x,y=p.y;
+if(b.type==='tree'){drawPalm(x,y+8,1.0);return;}
+ellipse(x,y+11,28,10,'rgba(16,61,48,.22)');
+if(b.type==='hut'||b.type==='lodge'){let w=b.type==='hut'?37:49,h=b.type==='hut'?27:34;
+ctx.fillStyle='#e9d9ad';ctx.fillRect(x-w/2,y-h,w,h);ctx.fillStyle='#a9573f';ctx.beginPath();ctx.moveTo(x-w/2-5,y-h);ctx.lineTo(x,y-h-22);ctx.lineTo(x+w/2+5,y-h);ctx.closePath();ctx.fill();ctx.fillStyle='#784c38';ctx.fillRect(x-6,y-16,12,16);ctx.fillStyle='#8fc7c1';ctx.fillRect(x-17,y-h+9,8,8);ctx.fillRect(x+9,y-h+9,8,8);
+if(b.type==='lodge'){ctx.fillStyle='#d9c59a';ctx.fillRect(x-8,y-h-25,16,12);}}
+if(b.type==='farm'){ctx.fillStyle='#b98a4c';ctx.fillRect(x-26,y-20,52,18);for(let i=0;i<5;i++){ctx.strokeStyle='#e6c16b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-21+i*10,y-18);ctx.lineTo(x-21+i*10,y-4);ctx.stroke();}for(let i=0;i<4;i++){ellipse(x-18+i*12,y-25-(i%2)*3,4,9,'#a4c76a');}}
+if(b.type==='lighthouse'){ctx.fillStyle='#f2e8ca';ctx.fillRect(x-12,y-42,24,42);ctx.fillStyle='#d85f4d';ctx.fillRect(x-12,y-33,24,8);ctx.fillRect(x-12,y-17,24,8);ctx.fillStyle='#f7d97e';ctx.fillRect(x-10,y-52,20,10);ctx.fillStyle='#ffeeb0';ctx.fillRect(x-5,y-49,10,5);}
+}
+function draw(t){drawOcean(t);drawIsland();drawPalm(island.x-island.rx*.78,island.y-island.ry*.58,.85);drawPalm(island.x+island.rx*.76,island.y+island.ry*.45,.72);
+plots.forEach((p,i)=>{let b=state.buildings.find(z=>z.plot===i);if(!b){ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=state.selected?'rgba(255,238,169,.6)':'rgba(255,255,255,.2)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(p.x,p.y+4,17,7,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();} });
+state.buildings.slice().sort((a,b)=>plots[a.plot].y-plots[b.plot].y).forEach(drawBuilding);
+ctx.fillStyle='rgba(255,248,213,.8)';ctx.font='800 12px system-ui';ctx.textAlign='center';ctx.fillText('SUNSHORE ISLAND',island.x,island.y+island.ry*.76);
 requestAnimationFrame(draw);}
-function burst(x,y,color){for(let i=0;i<9;i++)particles.push({x,y,vx:(Math.random()-.5)*4,vy:-Math.random()*3,size:2+Math.random()*3,life:25,color});}
-function mine(x,y){if(Math.abs(x-player.x)+Math.abs(y-player.y)!==1){toast('Mine a block next to you!');return;}if(save.bag.length>=save.capacity){toast('Bag full! Sell your ores first');return;}ensureRows();let b=grid[y][x];b.hp-=save.power;let r=area.getBoundingClientRect(),sx=(r.width-cols*tile)/2+x*tile+tile/2,sy=y*tile-camY+tile/2;burst(sx,sy,b.ore.color);
-if(b.hp<=0){save.bag.push(b.ore.name);save.counts[b.ore.name]=(save.counts[b.ore.name]||0)+1;save.depth=Math.max(save.depth,y);player.x=x;player.y=y;grid[y][x]={ore:ores[0],hp:1,seed:Math.random()};ensureRows();let reward=b.ore.value;if(y>0)save.coins+=Math.max(0,Math.floor(reward*.12));if(b.ore!==ores[0])toast(b.ore.emoji+' '+b.ore.name+' collected!');}
-updateUI();persist();}
-function sell(){if(!save.bag.length){toast('Your bag is empty!');return;}let total=0;for(let n of save.bag){let o=ores.find(v=>v.name===n);total+=o?o.value:1;}save.coins+=total;let count=save.bag.length;save.bag=[];updateUI();persist();toast('Sold '+count+' ores for '+total+' coins!');}
-function openModal(type){$('modal').classList.add('open');if(type==='upgrades'){ $('modalTitle').textContent='🛠️ Workshop';renderUpgrades();}else{$('modalTitle').textContent='🎒 Ore Collection';renderCollection();}}
-function renderUpgrades(){let pCost=35*Math.pow(2,save.upgrades.power),cCost=50+save.upgrades.capacity*35;$('modalBody').innerHTML='';
-const items=[{ico:'⛏️',name:'Stronger Pickaxe',desc:'Mine tougher rocks in fewer hits. Current power: '+save.power,cost:pCost,action:()=>{save.coins-=pCost;save.power++;save.upgrades.power++;}},{ico:'🎒',name:'Bigger Backpack',desc:'Carry 10 more ores. Current capacity: '+save.capacity,cost:cCost,action:()=>{save.coins-=cCost;save.capacity+=10;save.upgrades.capacity++;}}];
-for(let it of items){let row=document.createElement('div');row.className='upgrade';row.innerHTML='<div class="ico">'+it.ico+'</div><div class="info"><b>'+it.name+'</b><small>'+it.desc+'</small></div><button class="buy">🪙 '+it.cost+'</button>';let btn=row.querySelector('button');btn.disabled=save.coins<it.cost;btn.onclick=()=>{it.action();persist();updateUI();renderUpgrades();toast('Upgrade purchased!');};$('modalBody').append(row);}}
-function renderCollection(){let body=$('modalBody');body.innerHTML='<p style="color:#9db1c8;font-size:12px;margin-top:0">Discover every mineral hidden underground.</p>';let box=document.createElement('div');box.className='inventory';for(let o of ores){let n=save.counts[o.name]||0;let el=document.createElement('div');el.className='ore';el.innerHTML='<span>'+o.emoji+' '+(n?o.name:'???')+'</span><b>'+n+'</b>';if(!n)el.style.opacity='.48';box.append(el);}body.append(box);}
-canvas.addEventListener('pointerdown',e=>{e.preventDefault();let r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left-(r.width-cols*tile)/2)/tile),y=Math.floor((e.clientY-r.top+camY)/tile);if(x>=0&&x<cols&&y>=0&&y<grid.length)mine(x,y);},{passive:false});
-$('sellBtn').onclick=sell;$('upgradeBtn').onclick=()=>openModal('upgrades');$('bagBtn').onclick=()=>openModal('collection');$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('pointerdown',e=>{if(e.target===$('modal'))$('modal').classList.remove('open');});
-document.addEventListener('touchmove',e=>{if(!$('modal').classList.contains('open'))e.preventDefault();},{passive:false});document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});document.addEventListener('contextmenu',e=>e.preventDefault());
-ensureRows();resize();window.addEventListener('resize',resize);window.addEventListener('orientationchange',()=>setTimeout(resize,180));updateUI();draw();
+function updateUI(){$('coins').textContent=Math.floor(state.coins);$('wood').textContent=Math.floor(state.wood);$('level').textContent=state.level;document.querySelectorAll('.build').forEach(b=>b.classList.toggle('selected',b.dataset.type===state.selected));}
+function say(s){let el=$('toast');el.textContent=s;el.style.opacity=1;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.opacity=0,1500);}
+function pickBuild(type){state.selected=type;updateUI();say('Tap an empty plot to place '+labels[type]);}
+document.querySelectorAll('.build').forEach(b=>b.addEventListener('click',()=>pickBuild(b.dataset.type)));
+function place(x,y){let best=-1,dist=1e9;plots.forEach((p,i)=>{let d=Math.hypot(x-p.x,y-p.y);if(d<dist){dist=d;best=i;}});if(best<0||dist>Math.max(30,plots[best].r*1.5))return;
+if(state.buildings.some(b=>b.plot===best)){say('That plot is occupied');return;}
+let [c,w]=costs[state.selected];if(state.coins<c||state.wood<w){say('Not enough resources');return;}
+state.coins-=c;state.wood-=w;state.buildings.push({plot:best,type:state.selected});state.level=1+Math.floor(state.buildings.length/4);save();updateUI();say(labels[state.selected]+' built!');}
+canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;place(e.clientX,e.clientY);});
+$('collect').onclick=()=>{let gain=0,wood=0;state.buildings.forEach(b=>{if(b.type==='hut')gain+=5;if(b.type==='farm'){gain+=3;wood+=2}if(b.type==='lodge')gain+=10;if(b.type==='lighthouse')gain+=14;if(b.type==='tree')wood+=3;});state.coins+=gain;state.wood+=wood;state.lastCollect=Date.now();save();updateUI();say('Collected +'+gain+' coins and +'+wood+' wood');};
+$('expand').onclick=()=>{let cost=100+state.expanded*90;if(state.coins<cost){say('Need '+cost+' coins to expand');return;}if(state.expanded>=2){say('Your island is fully expanded!');return;}state.coins-=cost;state.expanded++;layout();save();updateUI();say('New shoreline unlocked!');};
+$('menu').onclick=()=>{$('modalTitle').textContent='Island menu';$('modalText').textContent='Build a thriving island village. Buildings earn resources when you collect. Your progress is saved on this device.';$('modal').style.display='flex';};
+$('saveClose').onclick=()=>{$('modal').style.display='none';};
+$('reset').onclick=()=>{if(confirm('Start a new island? This erases this island save.')){state={coins:120,wood:35,level:1,expanded:0,buildings:[],selected:'hut',lastCollect:Date.now()};save();layout();updateUI();$('modal').style.display='none';say('A fresh island awaits!');}};
+window.addEventListener('resize',resize);window.addEventListener('orientationchange',()=>setTimeout(resize,250));
+resize();updateUI();requestAnimationFrame(draw);
 })();
-</script></body></html>
+</script>
+</body>
+</html>
