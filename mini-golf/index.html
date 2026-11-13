@@ -15,11 +15,22 @@ header{padding:calc(10px + env(safe-area-inset-top)) 15px 9px;display:flex;justi
 #modal{position:fixed;inset:0;background:#061a16d9;display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:5}#modal.open{display:flex}.sheet{width:min(100%,550px);max-height:82dvh;overflow:auto;background:linear-gradient(#285746,#173a31);border:1px solid #659779;border-radius:22px;padding:17px;box-shadow:0 20px 70px #0009}.sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.sheet h2{margin:0;font-size:21px}.close{width:34px;height:34px;border-radius:10px;background:#47725d;font-size:20px}.courseRow{display:flex;align-items:center;gap:12px;background:#1b4438;border:1px solid #47745c;border-radius:14px;padding:11px;margin:8px 0}.courseRow .ci{font-size:26px}.courseRow .desc{flex:1}.courseRow small{display:block;color:#b4d3bf;font-size:11px}.courseRow button{background:#d4ee8a;color:#20391e;border-radius:10px;padding:9px 12px;font-weight:950}.courseRow button:disabled{opacity:.4}
 #toast{position:absolute;bottom:12px;left:50%;transform:translate(-50%,10px);opacity:0;background:#102b24ed;border:1px solid #8bb895;border-radius:12px;padding:9px 13px;font-size:12px;font-weight:900;white-space:nowrap;pointer-events:none;transition:.2s}#toast.show{opacity:1;transform:translate(-50%,0)}
 @media(min-width:620px){#app{border-left:1px solid #3b6655;border-right:1px solid #3b6655}}
+/* Full-screen landscape play layout */
+html,body{width:100%;height:100%;height:100dvh}
+#app{width:100%;max-width:none;height:100dvh;margin:0}
+#stage{margin:0 8px;min-height:0;flex:1}
+#rotateNotice{display:none;position:fixed;inset:0;z-index:20;background:#102c29;color:#f7f8ef;align-items:center;justify-content:center;text-align:center;padding:28px}
+#rotateNotice .noticeCard{max-width:300px}
+#rotateNotice .phoneIcon{font-size:48px;display:block;margin-bottom:12px}
+@media(orientation:portrait){#rotateNotice{display:flex}#app,#modal{visibility:hidden}}
+@media(orientation:landscape){header{padding:calc(5px + env(safe-area-inset-top)) 14px 4px}.logo{font-size:16px}.course b{font-size:13px}.hud{padding:0 12px 5px;gap:7px}.pill{padding:4px 9px}.pill b{font-size:14px}.controls{padding:5px 12px calc(5px + env(safe-area-inset-bottom));gap:8px}.btn{min-height:36px}}
+@media(min-width:620px){#app{border:0}}
 </style></head><body><div id="app">
 <header><div class="logo">⛳ MINI <span>GOLF CLUB</span></div><div class="course">CURRENT COURSE<b id="courseName">SUNNY MEADOWS</b></div></header>
 <div class="hud"><div class="pill"><small>STROKES</small><b id="strokes">0</b></div><div class="pill"><small>PAR</small><b id="par">3</b></div><div class="pill"><small>HOLE</small><b id="hole">1 / 9</b></div></div>
 <div id="stage"><canvas id="game"></canvas><div id="tip">PULL BACK TO AIM • SIDE VIEW</div><div id="toast"></div></div>
 <div class="controls"><button class="btn" id="courses">🗺️ COURSES</button><button class="btn gold" id="reset">↻ RESTART</button><button class="btn" id="next">NEXT HOLE ›</button></div></div>
+<div id="rotateNotice"><div class="noticeCard"><span class="phoneIcon">📱 ↻</span><b>Rotate your phone</b><p>Mini Golf Club is designed to play horizontally.</p></div></div>
 <div id="modal"><div class="sheet"><div class="sheethead"><h2 id="modalTitle">Choose a course</h2><button class="close" id="close">×</button></div><div id="modalBody"></div></div></div>
 <script>
 (()=>{'use strict';
@@ -88,6 +99,6 @@ canvas.addEventListener('pointerdown',pointerDown,{passive:false});canvas.addEve
 function openCourses(){$('modal').classList.add('open');$('modalTitle').textContent='🗺️ Choose a course';let body=$('modalBody');body.innerHTML='';courses.forEach((c,i)=>{let row=document.createElement('div');row.className='courseRow';let locked=i>save.unlocked;row.innerHTML='<div class="ci">'+(locked?'🔒':c.emoji)+'</div><div class="desc"><b>'+c.name+'</b><small>'+c.desc+'</small></div><button '+(locked?'disabled':'')+'>'+(locked?'LOCKED':'PLAY')+'</button>';row.querySelector('button').onclick=()=>{courseIndex=i;holeIndex=0;$('modal').classList.remove('open');$('tip').textContent='PULL BACK FROM THE BALL TO AIM';resetHole();};body.append(row);});}
 $('courses').onclick=openCourses;$('reset').onclick=()=>{resetHole();notify('Hole restarted');};$('next').onclick=()=>{if(!completed){notify('Sink the ball first!');return;}if(holeIndex<8){holeIndex++;resetHole();$('tip').textContent='PULL BACK FROM THE BALL TO AIM';}else{notify('Course complete! Choose another course.');openCourses();}};$('close').onclick=()=>$('modal').classList.remove('open');$('modal').addEventListener('pointerdown',e=>{if(e.target===$('modal'))$('modal').classList.remove('open');});
 document.addEventListener('touchmove',e=>{if(!$('modal').classList.contains('open'))e.preventDefault();},{passive:false});document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});document.addEventListener('contextmenu',e=>e.preventDefault());
-resize();resetHole();window.addEventListener('resize',()=>{resize();resetHole();});draw();
+resize();resetHole();window.addEventListener('resize',()=>{resize();resetHole();});window.addEventListener('orientationchange',()=>setTimeout(()=>{resize();resetHole();},180));draw();
 })();
 </script></body></html>
